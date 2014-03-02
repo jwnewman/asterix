@@ -5,6 +5,7 @@ class Team:
         self.gold_medals = 0
         self.silver_medals = 0
         self.bronze_medals = 0
+        print "Instantiated new team : " + self.name
 
     def get_team_name(self):
         return self.name
@@ -15,14 +16,14 @@ class Team:
     def get_silver_medals(self):
         return self.silver_medals
 
-    def get_bronze_medals(self)
+    def get_bronze_medals(self):
         return self.bronze_medals
 
-    def increment_gold_medals(self)
+    def increment_gold_medals(self):
         gold_medals = gold_medals+1
 
-    def increment_silver_medals(self)
+    def increment_silver_medals(self):
         silver_medals = silver_medals+1
 
-    def increment_bronze_medals(self)
+    def increment_bronze_medals(self):
         bronze_medals = bronze_medals+1
