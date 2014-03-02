@@ -10,6 +10,9 @@ class Team:
     def get_team_name(self):
         return self.name
 
+    def get_medal_tally(self):
+        return "Team " + self.name + " has :\n" + str(self.gold_medals) + " gold medals \n" + str(self.silver_medals) + " silver medals \n" + str(self.bronze_medals) + " bronze medals\n"
+
     def get_gold_medals(self):
         return self.gold_medals
 
@@ -20,10 +23,10 @@ class Team:
         return self.bronze_medals
 
     def increment_gold_medals(self):
-        gold_medals = gold_medals+1
+        self.gold_medals = self.gold_medals+1
 
     def increment_silver_medals(self):
-        silver_medals = silver_medals+1
+        self.silver_medals = self.silver_medals+1
 
     def increment_bronze_medals(self):
-        bronze_medals = bronze_medals+1
+        self.bronze_medals = self.bronze_medals+1

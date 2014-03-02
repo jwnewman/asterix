@@ -17,28 +17,37 @@ def synchronized(lock):
 
 class ScoreKeeper:
 
-    def __init__(self, eventNames, teamNames):
-        self.events = []
-        self.teams = []
-        for eventName in eventNames:
-            self.events.append(Event(eventName))
-        for teamName in teamNames:
-            self.teams.append(Team(teamName))
+    def __init__(self, event_names, team_names):
+        self.events = {}
+        self.teams = {}
+        for event_name in event_names:
+            self.events[event_name] = Event(event_name)
+        for team_name in team_names:
+            self.teams[team_name] = Team(team_name)
 
     @synchronized(Global.lock)
     def get_medal_tally(self, team_name):
-        return "2 medals"
+        return self.teams[team_name].get_medal_tally()
 
     @synchronized(Global.lock)
     def increment_medal_tally(self, team_name, medal_type):
-        return
+        if (medal_type.lower() == "gold"):
+            self.teams[team_name].increment_gold_medals()
+        elif (medal_type.lower() == "silver"):
+            self.teams[team_name].increment_silver_medals()
+        elif (medal_type.lower() == "bronze"):
+            self.teams[team_name].increment_silver_medals()
+        else:
+            return "Unrecognized medal type."
+        return "Successfully incremented."
 
     @synchronized(Global.lock)
     def get_score(self, event_type):
-        return
+        return self.events[event_type].get_score()
 
     @synchronized(Global.lock)
-    def set_score(self, event_type):
+    def set_score(self, event_type, score):
+        self.events[event_type].set_score(score)
         return
 
 
