@@ -1,5 +1,5 @@
-from threading import Thread, RLock
+from threading import Thread, RLock, Lock
 
 class Global:
     app = None
-    lock = RLock()
+    lock = Lock()
