@@ -36,17 +36,7 @@ class ScoreKeeper:
         self.teams[team_name].increment_medals(medal_type)
         return "Successfully incremented."
 
-        # if (medal_type.lower() == "gold"):
-        #     self.teams[team_name].increment_gold_medals()
-        # elif (medal_type.lower() == "silver"):
-        #     self.teams[team_name].increment_silver_medals()
-        # elif (medal_type.lower() == "bronze"):
-        #     self.teams[team_name].increment_silver_medals()
-        # else:
-        #     return "Unrecognized medal type."
-        # return "Successfully incremented."
-
-    @synchronized(Global.lock)
+    #@synchronized(Global.lock)
     def get_score(self, event_type):
         return self.events[event_type].get_score()
 
@@ -54,6 +44,12 @@ class ScoreKeeper:
     def set_score(self, event_type, score):
         self.events[event_type].set_score(score)
         return
+
+    def register_client(self, client_id, event_type):
+        return self.events[event_type].add_client(client_id)
+
+    def get_registered_clients_for_event(self, event_type):
+        return self.events[event_type].get_clients()
 
 
   
