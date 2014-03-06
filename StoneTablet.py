@@ -2,33 +2,36 @@ import xmlrpclib
 import socket
 import time
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
+import numpy.random as rn
 
-uid = 8001
+# uid = 8001
 
-class ListenerFunctions:
-    def print_medal_tally_for_team(self, medal_tally):
-        print medal_tally
+TEAMS = ["Gaul", "Rome", "Carthage", "Greece", "Persia"]
+EVENTS = ["Stone Curling", "Stone Skating", "Underwater Stone Weaving", "Synchronized Stone Swimming"]
+
+# class ListenerFunctions:
+#     def print_medal_tally_for_team(self, medal_tally):
+#         print medal_tally
         
-    def print_score_for_event(self, score):
-        print score
+#     def print_score_for_event(self, score):
+#         print score
 
-class TabletRPCHandler(SimpleXMLRPCRequestHandler):
-    rpc_paths = ('/RPC2',)
+# class TabletRPCHandler(SimpleXMLRPCRequestHandler):
+#     rpc_paths = ('/RPC2',)
 
+# # Create server
+# callback_server = SimpleXMLRPCServer(("localhost", uid),
+#                             requestHandler=TabletRPCHandler)
+# callback_server.register_introspection_functions()
 
-# Create server
-callback_server = SimpleXMLRPCServer(("localhost", uid),
-                            requestHandler=TabletRPCHandler)
-callback_server.register_introspection_functions()
+# callback_server.register_instance(ListenerFunctions())
 
-callback_server.register_instance(ListenerFunctions())
+# s = xmlrpclib.ServerProxy('http://localhost:8000')
 
-s = xmlrpclib.ServerProxy('http://localhost:8000')
-
-print s.register_client(uid, "Stone Curling")
+# print s.register_client(uid, "Stone Curling")
     
 
-callback_server.serve_forever()
+# callback_server.serve_forever()
 
 class StoneTablet:
 	def __init__(self, port, server_ip, server_port, teams=[], events=[]):
@@ -72,9 +75,7 @@ class StoneTablet:
 		self.register_with_server()
 		callback_server.serve_forever()
 
-
-
-def main(port, server_ip, server_port, teams = [], events = [], client_pull = True, pull_rate = 10):
+def main(port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http://localhost', server_port=8000, client_pull = True, pull_rate = 10):
 	client = StoneTablet(port, server_ip, server_port, teams, events)
 
 	# Client-pull architecture
@@ -84,6 +85,17 @@ def main(port, server_ip, server_port, teams = [], events = [], client_pull = Tr
 
 	# Server-push architecture
 	client.serve()
+
+if __name__ == "__main__":
+	port = rn.randint(8002, 9000)
+	num_teams = rn.randint(1, len(TEAMS)+1)
+	num_events = rn.randint(1, len(EVENTS)+1)
+	print rn.choice(len(TEAMS), num_teams, replace=False)
+	fav_teams = [TEAMS[t] for t in rn.choice(len(TEAMS), num_teams, replace=False)]
+	fav_events = [EVENTS[e] for e in rn.choice(len(EVENTS), num_events, replace=False)]
+
+	main(port=port, teams=fav_teams, events=fav_events)
+
 
 
 
