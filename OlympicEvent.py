@@ -1,5 +1,4 @@
-class Event:
-
+class OlympicEvent:
     def __init__(self, event_type):
         self.event_type = event_type
         self.score = ""

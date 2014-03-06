@@ -1,7 +1,7 @@
-from threading import Thread, RLock
+from threading import Thread, RLock, Event
 from Global import Global
 from Team import Team
-from Event import Event
+from Event import OlympicEvent
 
 TEAMS = ["Gaul", "Rome", "Carthage", "Greece", "Persia"]
 MEDALS = ["gold", "silver", "bronze"]
@@ -10,18 +10,21 @@ EVENTS = ["Stone Curling", "Stone Skating", "Underwater Stone Weaving", "Synchro
 def synchronized(lock):
     def wrap(f):
         def newFunction(*args, **kw):
-            lock.acquire()
-            try:
+            # lock.acquire()
+            # try:
+            #     return f(*args, **kw)
+            # finally:
+            #     lock.release()
+            with lock:
                 return f(*args, **kw)
-            finally:
-                lock.release()
+
         return newFunction
     return wrap
 
-def synchronized_test(lock):
+def synchronized_check(condition):
     def wrap(f):
         def newFunction(*args, **kw):
-            if not l.locked():
+            with condition:
                 return f(*args, **kw)
         return newFunction
     return wrap
@@ -35,7 +38,7 @@ class ScoreKeeper:
         for team_name in TEAMS:
             self.teams[team_name.lower()] = Team(team_name)
 
-    @synchronized_test(Global.medal_lock)
+    @synchronized_check(Global.medal_lock)
     def get_medal_tally(self, team_name):
         if team_name.lower() not in [t.lower() for t in TEAMS]:
             return "Error 8483 -- unrecognized team name:\n\t%s"%team_name
@@ -48,7 +51,7 @@ class ScoreKeeper:
         self.teams[team_name.lower()].increment_medals(medal_type)
         return "Medal tally successfully incremented."
 
-    @synchronized_test(Global.score_lock)
+    @synchronized_check(Global.score_lock)
     def get_score(self, event_type):
         if event_type.lower() not in [e.lower() for e in EVENTS]:
             return "Error 28734 -- unrecognized event type:\n\t%s"%event_type
@@ -82,13 +85,13 @@ class ScoreKeeper:
                 err += "%\ts\n"%team
         return ack + err
 
-    @synchronized_test(Global.client_lock)
+    @synchronized_check(Global.client_lock)
     def get_registered_clients_for_event(self, event_type):
         if event_type.lower() not in [e.lower() for e in EVENTS]:
             return "Error 0928 -- unrecognized event type:\n\t%s"%event_type
         return self.events[event_type.lower()].get_clients()
 
-    @synchronized_test(Global.client_lock)
+    @synchronized_check(Global.client_lock)
     def get_registered_clients_for_team(self, team_name):
         if team_name.lower() not in [t.lower() for t in TEAMS]:
             return "Error 0273 -- unrecognized team name\n\t%s"%team_name
