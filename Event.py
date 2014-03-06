@@ -17,7 +17,6 @@ class Event:
 
     def add_client(self, client_id):
         self.clients.append(client_id)
-        return "Registered."
 
     def get_clients(self):
         return self.clients

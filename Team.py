@@ -5,6 +5,7 @@ class Team:
         self.gold_medals = 0
         self.silver_medals = 0
         self.bronze_medals = 0
+        self.clients = []
         print "Instantiated new team : " + self.name
 
     def get_team_name(self):
@@ -41,3 +42,10 @@ class Team:
 
     def increment_bronze_medals(self):
         self.bronze_medals += 1
+
+
+    def add_client(self, client_id):
+        self.clients.append(client_id)
+
+    def get_clients(self):
+        return self.clients

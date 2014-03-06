@@ -6,12 +6,11 @@ from threading import Thread, RLock
 from ScoreKeeper import ScoreKeeper
 from Global import Global
 
+HOST_NAME = 'http://localhost:'
 
 class ScoreKeeperFunctions:
     def __init__(self):
-        self.events = ["Stone Curling", "Stone Skating", "Underwater Stone Weaving"]
-        self.teams = ["Gaul", "Rome"]
-        self.keeper = ScoreKeeper(self.events, self.teams)
+        self.keeper = ScoreKeeper()
 
     def get_medal_tally(self, team_name):
         return self.keeper.get_medal_tally(team_name)
@@ -23,11 +22,11 @@ class ScoreKeeperFunctions:
         ack = self.keeper.set_score(event_type, score)
         self.push_update(self.keeper.get_registered_clients_for_event(event_type), event_type)
         return ack
-    def register_client(self, client_id, event_type):
-        return self.keeper.register_client(client_id, event_type)
+    def register_client(self, client_id, events, teams):
+        return self.keeper.register_client(client_id, events, teams)
     def push_update(self, clients, event_type):
         for client_id in clients:
-            s = xmlrpclib.ServerProxy('http://localhost:' + str(client_id))
+            s = xmlrpclib.ServerProxy(HOST_NAME + str(client_id))
             s.print_score_for_event(self.keeper.get_score(event_type))
         return
 
