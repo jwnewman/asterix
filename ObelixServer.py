@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 
 import xmlrpclib
+import SocketServer
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 from threading import Thread, RLock
 from ScoreKeeper import ScoreKeeper
 from Global import Global
 
 HOST_NAME = 'http://localhost:'
+
+class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer): pass
 
 class ScoreKeeperFunctions:
     def __init__(self):
@@ -40,7 +43,7 @@ class ObelixRPCHandler(SimpleXMLRPCRequestHandler):
 
 
 # Create server
-server = SimpleXMLRPCServer(("localhost", 8000),
+server = AsyncXMLRPCServer(("localhost", 8000),
                             requestHandler=ObelixRPCHandler)
 server.register_introspection_functions()
 

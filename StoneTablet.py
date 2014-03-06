@@ -49,7 +49,7 @@ class StoneTablet:
 		self.register_with_server()
 		callback_server.serve_forever()
 
-def main(port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http://localhost', server_port=8000, client_pull = True, pull_rate = 10):
+def main(port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http://localhost', server_port=8000, client_pull = True, pull_rate = 0.0001):
 	client = StoneTablet(port, server_ip, server_port, teams, events)
 
 	# Client-pull architecture
