@@ -67,8 +67,9 @@ if __name__ == "__main__":
     print rn.choice(len(TEAMS), num_teams, replace=False)
     fav_teams = [TEAMS[t] for t in rn.choice(len(TEAMS), num_teams, replace=False)]
     fav_events = [EVENTS[e] for e in rn.choice(len(EVENTS), num_events, replace=False)]
+    server_ip = '128.119.40.193'
 
-    main(port=port, teams=fav_teams, events=fav_events)
+    main(port=port, server_ip=server_ip, teams=fav_teams, events=fav_events)
 
 
 
