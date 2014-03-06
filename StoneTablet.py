@@ -12,6 +12,7 @@ class StoneTablet:
         self.id = (ip, port)
         self.teams = teams
         self.events = events
+        print "%s:%d"%(server_ip, server_port)
         self.server = xmlrpclib.ServerProxy("%s:%d"%(server_ip, server_port))
 
     # Methods for client-pull architecture
@@ -27,6 +28,7 @@ class StoneTablet:
             print self.get_medal_tally(team)
         for event in self.events:
             print self.get_score(event)
+        print "--------------------"
 
     # Methods for server-push architecture
 
@@ -45,13 +47,14 @@ class StoneTablet:
         self.register_with_server()
         callback_server.serve_forever()
 
-def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http://localhost', server_port=8000, client_pull = True, pull_rate = 0.0001):
-    client = StoneTablet(port, server_ip, server_port, teams, events)
+def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http://localhost', server_port=8000, client_pull = True, pull_rate = 5):
+    client = StoneTablet(ip, port, server_ip, server_port, teams, events)
 
     # Client-pull architecture
     while(client_pull):
         client.pull()
         time.sleep(pull_rate)
+        print "*****************"
 
     # Server-push architecture
     client.serve()
@@ -61,11 +64,12 @@ if __name__ == "__main__":
     port = random.randint(8002, 9000)
     num_teams = random.randint(1, len(TEAMS))
     num_events = random.randint(1, len(EVENTS))
-    fav_teams = [TEAMS[t] for t in random.sample(len(TEAMS), num_teams)]
-    fav_events = [EVENTS[e] for e in random.sample(len(EVENTS), num_events)]
-    server_ip = '128.119.40.193'
+    fav_teams = random.sample(TEAMS, num_teams)
+    fav_events = random.sample(EVENTS, num_events)
+    # server_ip = '128.119.40.193'
+    server_ip = 'http://localhost'
 
-    main(ip=ip, port=port, server_ip=server_ip, teams=fav_teams, events=fav_events)
+    main(ip=ip, port=port, server_ip=server_ip, server_port=8000, teams=fav_teams, events=fav_events)
 
 
 
