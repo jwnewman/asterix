@@ -8,8 +8,8 @@ TEAMS = ["Gaul", "Rome", "Carthage", "Greece", "Persia"]
 EVENTS = ["Stone Curling", "Stone Skating", "Underwater Stone Weaving", "Synchronized Stone Swimming"]
 
 class StoneTablet:
-    def __init__(self, port, server_ip, server_port, teams=[], events=[]):
-        self.port = port
+    def __init__(self, ip, port, server_ip, server_port, teams=[], events=[]):
+        self.id = (ip, port)
         self.teams = teams
         self.events = events
         self.server = xmlrpclib.ServerProxy("%s:%d"%(server_ip, server_port))
@@ -36,12 +36,8 @@ class StoneTablet:
         def print_score_for_event(self, score):
             print score
 
-    def get_my_IP(self):
-        # TODO
-        return '127.0.0.1'
-
     def register_with_server(self):
-        print self.server.register_client(port = self.port, events = self.events, teams = self.teams)
+        print self.server.register_client(client_id=self.id, events=self.events, teams=self.teams)
 
     def serve(self):
         callback_server = SimpleXMLRPCServer("%s:%d"%(self.get_my_IP(), self.port))
@@ -49,7 +45,7 @@ class StoneTablet:
         self.register_with_server()
         callback_server.serve_forever()
 
-def main(port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http://localhost', server_port=8000, client_pull = True, pull_rate = 0.0001):
+def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http://localhost', server_port=8000, client_pull = True, pull_rate = 0.0001):
     client = StoneTablet(port, server_ip, server_port, teams, events)
 
     # Client-pull architecture
@@ -61,6 +57,7 @@ def main(port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http://l
     client.serve()
 
 if __name__ == "__main__":
+    ip = '128.119.40.193'
     port = rn.randint(8002, 9000)
     num_teams = rn.randint(1, len(TEAMS)+1)
     num_events = rn.randint(1, len(EVENTS)+1)
@@ -69,7 +66,7 @@ if __name__ == "__main__":
     fav_events = [EVENTS[e] for e in rn.choice(len(EVENTS), num_events, replace=False)]
     server_ip = '128.119.40.193'
 
-    main(port=port, server_ip=server_ip, teams=fav_teams, events=fav_events)
+    main(ip=ip, port=port, server_ip=server_ip, teams=fav_teams, events=fav_events)
 
 
 
