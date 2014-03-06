@@ -43,7 +43,8 @@ def main(port=8001, server_ip='http://localhost', server_port=8000):
         fonix.set_score(EVENTS[event], score)
 
         if random.random() > 0.5:
-            medal_winners = random.sample(TEAMS, 3, replace=False)
+            medal_winners = random.sample(TEAMS, 3)
+            print medal_winners
             [fonix.increment_medal_tally(team, MEDALS[medal]) for medal, team in enumerate(medal_winners)]
 
 
