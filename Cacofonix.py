@@ -33,7 +33,7 @@ def main(port=8001, server_ip='http://localhost', server_port=8000):
     while(True):
         # rn.seed(10)
 
-        # time.sleep(rn.randint(5))
+        time.sleep(rn.randint(5))
         event = rn.randint(len(EVENTS))
         team = rn.randint(len(TEAMS))
         lead = rn.randint(100)

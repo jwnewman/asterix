@@ -65,8 +65,14 @@ class ScoreKeeper:
     
     @synchronized(Global.client_lock)
     def register_client(self, client_id, events, teams):
-        if type(client_id) != int:
+        if type(client_id) != tuple:
             return "Error 29010 -- invalid client id"
+        if len(client_id) != 2:
+            return "Error 39484 -- invalid client id"
+        if type(client_id[0]) != str:
+            return "Error 432 -- invalid client id"
+        if type(client_id[1]) != int:
+            return "Error 940 -- invalid client id"
         ack = "Successfully registered for: "
         err = "Error in registering for: "
         for event in events:

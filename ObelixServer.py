@@ -7,7 +7,7 @@ from threading import Thread, RLock
 from ScoreKeeper import ScoreKeeper
 from Global import Global
 
-HOST_NAME = 'http://localhost:'
+HOST_NAME = '128.119.40.193'
 
 class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer): pass
 
@@ -29,7 +29,8 @@ class ScoreKeeperFunctions:
         return self.keeper.register_client(client_id, events, teams)
     def push_update(self, clients, event_type):
         for client_id in clients:
-            s = xmlrpclib.ServerProxy(HOST_NAME + str(client_id))
+            client_ip, client_port = client_id
+            s = xmlrpclib.ServerProxy("%s:%d"%(client_ip, client_port))
             s.print_score_for_event(self.keeper.get_score(event_type))
         return
 
