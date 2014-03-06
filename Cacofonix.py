@@ -1,5 +1,5 @@
 import xmlrpclib
-import numpy.random as rn
+import random
 import time
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
@@ -33,23 +33,18 @@ def main(port=8001, server_ip='http://localhost', server_port=8000):
     while(True):
         # rn.seed(10)
 
-        time.sleep(rn.randint(5))
-        event = rn.randint(len(EVENTS))
-        team = rn.randint(len(TEAMS))
-        lead = rn.randint(100)
+        time.sleep(random.randint(0,4))
+        event = random.randint(0, len(EVENTS)-1)
+        team = random.randint(0, len(TEAMS)-1)
+        lead = random.randint(1, 100)
         score = create_flavor_statement(team, event, lead)
 
         print score
         fonix.set_score(EVENTS[event], score)
 
-        if rn.random() > 0.5:
-            # choose three teams
-            medal_winners = rn.choice(len(TEAMS), 3, replace=False)
-
-            team = TEAMS[rn.randint(len(TEAMS))]
-            medal = MEDALS[rn.randint(len(MEDALS))]
-
-            [fonix.increment_medal_tally(TEAMS[team], MEDALS[medal]) for medal, team in enumerate(medal_winners)]
+        if random.random() > 0.5:
+            medal_winners = random.sample(TEAMS, 3, replace=False)
+            [fonix.increment_medal_tally(team, MEDALS[medal]) for medal, team in enumerate(medal_winners)]
 
 
 if __name__ == "__main__":

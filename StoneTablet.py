@@ -2,7 +2,7 @@ import xmlrpclib
 import socket
 import time
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
-import numpy.random as rn
+import random
 
 TEAMS = ["Gaul", "Rome", "Carthage", "Greece", "Persia"]
 EVENTS = ["Stone Curling", "Stone Skating", "Underwater Stone Weaving", "Synchronized Stone Swimming"]
@@ -58,12 +58,11 @@ def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http
 
 if __name__ == "__main__":
     ip = '128.119.40.193'
-    port = rn.randint(8002, 9000)
-    num_teams = rn.randint(1, len(TEAMS)+1)
-    num_events = rn.randint(1, len(EVENTS)+1)
-    print rn.choice(len(TEAMS), num_teams, replace=False)
-    fav_teams = [TEAMS[t] for t in rn.choice(len(TEAMS), num_teams, replace=False)]
-    fav_events = [EVENTS[e] for e in rn.choice(len(EVENTS), num_events, replace=False)]
+    port = random.randint(8002, 9000)
+    num_teams = random.randint(1, len(TEAMS))
+    num_events = random.randint(1, len(EVENTS))
+    fav_teams = [TEAMS[t] for t in random.sample(len(TEAMS), num_teams)]
+    fav_events = [EVENTS[e] for e in random.sample(len(EVENTS), num_events)]
     server_ip = '128.119.40.193'
 
     main(ip=ip, port=port, server_ip=server_ip, teams=fav_teams, events=fav_events)
