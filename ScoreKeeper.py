@@ -1,7 +1,8 @@
 from threading import Thread, RLock, Event
 from Global import Global
 from Team import Team
-from Event import OlympicEvent
+from OlympicEvent import OlympicEvent
+import time
 
 TEAMS = ["Gaul", "Rome", "Carthage", "Greece", "Persia"]
 MEDALS = ["gold", "silver", "bronze"]
@@ -10,22 +11,20 @@ EVENTS = ["Stone Curling", "Stone Skating", "Underwater Stone Weaving", "Synchro
 def synchronized(lock):
     def wrap(f):
         def newFunction(*args, **kw):
-            # lock.acquire()
-            # try:
-            #     return f(*args, **kw)
-            # finally:
-            #     lock.release()
-            with lock:
+            lock.acquire()
+            try:
                 return f(*args, **kw)
-
+            finally:
+                lock.release()
         return newFunction
     return wrap
 
-def synchronized_check(condition):
+def synchronized_check(lock):
     def wrap(f):
         def newFunction(*args, **kw):
-            with condition:
-                return f(*args, **kw)
+            while(lock.locked()):
+                time.sleep(0.1)
+            return f(*args, **kw)
         return newFunction
     return wrap
 
@@ -34,7 +33,7 @@ class ScoreKeeper:
         self.events = {}
         self.teams = {}
         for event_name in EVENTS:
-            self.events[event_name.lower()] = Event(event_name)
+            self.events[event_name.lower()] = OlympicEvent(event_name)
         for team_name in TEAMS:
             self.teams[team_name.lower()] = Team(team_name)
 

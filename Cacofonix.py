@@ -4,14 +4,6 @@ import time
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 
-# s = xmlrpclib.ServerProxy('http://localhost:8000')
-
-# s.set_score("Stone Curling", "10")
-
-
-# # Print list of available methods
-# print s.system.listMethods()
-
 TEAMS = ["Gaul", "Rome", "Carthage", "Greece", "Persia"]
 MEDALS = ["gold", "silver", "bronze"]
 EVENTS = ["Stone Curling", "Stone Skating", "Underwater Stone Weaving", "Synchronized Stone Swimming"]
