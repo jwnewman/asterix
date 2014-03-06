@@ -4,13 +4,13 @@ import time
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 
-s = xmlrpclib.ServerProxy('http://localhost:8000')
+# s = xmlrpclib.ServerProxy('http://localhost:8000')
 
-s.set_score("Stone Curling", "10")
+# s.set_score("Stone Curling", "10")
 
 
-# Print list of available methods
-print s.system.listMethods()
+# # Print list of available methods
+# print s.system.listMethods()
 
 TEAMS = ["Gaul", "Rome", "Carthage", "Greece", "Persia"]
 MEDALS = ["gold", "silver", "bronze"]
@@ -34,12 +34,12 @@ class Cacofonix:
 		# TODO get back ack/error
 		self.server.increment_medal_tally(team, medal)
 
-def main(port=8001, server_ip, server_port):
-
+def main(port=8001, server_ip='http://localhost', server_port=8000):
+	print "main"
 	fonix = Cacofonix(port = port, server_ip = server_ip, server_port = server_port)
 
 	while(True):
-		rn.seed(10)
+		# rn.seed(10)
 
 		time.sleep(rn.randint(5))
 		event = rn.randint(len(EVENTS))
@@ -47,11 +47,12 @@ def main(port=8001, server_ip, server_port):
 		lead = rn.randint(100)
 		score = create_flavor_statement(team, event, lead)
 
+		print score
 		fonix.set_score(EVENTS[event], score)
 
 		if rn.random() > 0.5:
 			# choose three teams
-			[gold, silver, bronze] = rn.choice(len(TEAMS), 3, replace=False)
+			medal_winners = rn.choice(len(TEAMS), 3, replace=False)
 
 			team = TEAMS[rn.randint(len(TEAMS))]
 			medal = MEDALS[rn.randint(len(MEDALS))]
@@ -59,7 +60,8 @@ def main(port=8001, server_ip, server_port):
 			[fonix.increment_medal_tally(TEAMS[team], MEDALS[medal]) for medal, team in enumerate(medal_winners)]
 
 
-
+if __name__ == "__main__":
+	main()
 
 
 

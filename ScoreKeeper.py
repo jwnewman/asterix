@@ -31,27 +31,27 @@ class ScoreKeeper:
     def get_medal_tally(self, team_name):
         if team_name.lower() not in [t.lower() for t in TEAMS]:
             return "Error 8483 -- unrecognized team name:\n\t%s"%team_name
-        return self.teams[team_name].get_medal_tally()
+        return self.teams[team_name.lower()].get_medal_tally()
 
     @synchronized(Global.lock)
     def increment_medal_tally(self, team_name, medal_type):
         if medal_type.lower() not in [m.lower() for m in MEDALS]:
             return "Error 15010 -- unrecognized medal metal:\n\t%s"%medal_type
-        self.teams[team_name].increment_medals(medal_type)
-        return "Successfully incremented."
+        self.teams[team_name.lower()].increment_medals(medal_type)
+        return "Medal tally successfully incremented."
 
     #@synchronized(Global.lock)
     def get_score(self, event_type):
         if event_type.lower() not in [e.lower() for e in EVENTS]:
             return "Error 28734 -- unrecognized event type:\n\t%s"%event_type
-        return self.events[event_type].get_score()
+        return self.events[event_type.lower()].get_score()
 
     @synchronized(Global.lock)
     def set_score(self, event_type, score):
         if event_type.lower() not in [e.lower() for e in EVENTS]:
             return "Error 5 -- unrecognized event type:\n\t%s"%event_type
-        self.events[event_type].set_score(score)
-        return
+        self.events[event_type.lower()].set_score(score)
+        return "Score successfully updated."
 
     def register_client(self, client_id, events, teams):
         if type(client_id) != int:
@@ -76,7 +76,7 @@ class ScoreKeeper:
     def get_registered_clients_for_event(self, event_type):
         if event_type.lower() not in [e.lower() for e in EVENTS]:
             return "Error 0928 -- unrecognized event type:\n\t%s"%event_type
-        return self.events[event_type].get_clients()
+        return self.events[event_type.lower()].get_clients()
 
 
   
