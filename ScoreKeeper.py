@@ -12,13 +12,10 @@ def synchronized(lock):
     def wrap(f):
         def newFunction(*args, **kw):
             lock.acquire()
-            print "Lock acquired. Sleeping."
-            time.sleep(10)
             try:
                 return f(*args, **kw)
             finally:
                 lock.release()
-                print "Lock released"
         return newFunction
     return wrap
 
@@ -26,7 +23,6 @@ def synchronized_check(lock):
     def wrap(f):
         def newFunction(*args, **kw):
             while(lock.locked()):
-                assert (1==2)
                 time.sleep(0.1)
             return f(*args, **kw)
         return newFunction
