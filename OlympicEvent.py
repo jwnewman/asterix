@@ -17,6 +17,9 @@ class OlympicEvent:
     def add_client(self, client_id):
         self.clients.append(client_id)
 
+    def remove_client(self, client_id):
+        self.clients.remove(client_id)
+
     def get_clients(self):
         return self.clients
         

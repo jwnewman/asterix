@@ -14,6 +14,7 @@ class StoneTablet:
         self.events = events
         print "%s:%d"%(server_ip, server_port)
         self.server = xmlrpclib.ServerProxy("%s:%d"%(server_ip, server_port))
+        # Latency measurements for client-pull architecture
         self.latencies = []
 
     # Methods for client-pull architecture
@@ -43,7 +44,6 @@ class StoneTablet:
             return time.time() - time_of_update
         def print_score_for_event(self, score, time_of_update):
             print score
-            StoneTablet.latencies.append(time.time() - time_of_update)
             return time.time() - time_of_update
 
     def register_with_server(self):
@@ -56,17 +56,21 @@ class StoneTablet:
         self.register_with_server()
         callback_server.serve_forever()
 
-def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http://localhost', server_port=8000, client_pull = False, pull_rate = 5):
+def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http://localhost', server_port=8000, client_pull=False, pull_rate=5):
     client = StoneTablet(ip, port, server_ip, server_port, teams, events)
+    try:
+        # Client-pull architecture
+        while(client_pull):
+            client.pull()
+            time.sleep(pull_rate)
+            print "*****************"
 
-    # Client-pull architecture
-    while(client_pull):
-        client.pull()
-        time.sleep(pull_rate)
-        print "*****************"
-
-    # Server-push architecture
-    client.serve()
+        # Server-push architecture
+        client.serve()
+    except KeyboardInterrupt:
+        print "\nStopping\n"
+        print "Avg. latency: %f"%(float(sum(client.latencies))/(len(client.latencies)+1))
+        raise
 
 if __name__ == "__main__":
     # ip = '128.119.40.193'
@@ -74,8 +78,10 @@ if __name__ == "__main__":
     port = random.randint(8002, 9000)
     num_teams = random.randint(1, len(TEAMS))
     num_events = random.randint(1, len(EVENTS))
-    fav_teams = random.sample(TEAMS, num_teams)
-    fav_events = random.sample(EVENTS, num_events)
+    # fav_teams = random.sample(TEAMS, num_teams)
+    # fav_events = random.sample(EVENTS, num_events)
+    fav_teams = ["Gaul"]
+    fav_events = ["Stone Curling"]
     # server_ip = '128.119.40.193'
     server_ip = 'http://localhost'
 

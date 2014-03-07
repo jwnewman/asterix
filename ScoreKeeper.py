@@ -94,6 +94,21 @@ class ScoreKeeper:
         else:
             return ack + err
 
+    @synchronized(Global.client_lock)
+    def unregister_client(self, client_id):
+        if len(client_id) != 2:
+            return "Error 39484 -- invalid client id"
+        if type(client_id[0]) != str:
+            return "Error 432 -- invalid client id"
+        if type(client_id[1]) != int:
+            return "Error 940 -- invalid client id"
+        for event in EVENTS:
+            if client_id in self.events[event.lower()].get_clients():
+                self.events[event.lower()].remove_client(client_id)
+        for team in TEAMS:
+            if client_id in self.teams[team.lower()].get_clients():
+                self.teams[team.lower()].remove_client(client_id)
+
     @synchronized_check(Global.client_lock)
     def get_registered_clients_for_event(self, event_type):
         if event_type.lower() not in [e.lower() for e in EVENTS]:

@@ -18,37 +18,69 @@ class Cacofonix:
         self.port = port
         self.secret_id = "SECRET PASSWORD LOL HOORAY"
         self.server = xmlrpclib.ServerProxy("%s:%d"%(server_ip, server_port))
-
+        # Latency measurements for server-push architecture
+        self.latencies = []
     def set_score(self, event, score):
         # TODO get back ack/error
-        self.server.set_score(event, score, self.secret_id)
-
+        ack, latencies = self.server.set_score(event, score, self.secret_id)
+        print ack
+        self.latencies += latencies
     def increment_medal_tally(self, team, medal):
         # TODO get back ack/error
-        self.server.increment_medal_tally(team, medal, self.secret_id)
+        ack, latencies = self.server.increment_medal_tally(team, medal, self.secret_id)
+        print ack
+        self.latencies += latencies
 
-def main(port=8001, server_ip='http://localhost', server_port=8000):
+def random_main(port=8001, server_ip='http://localhost', server_port=8000):
     fonix = Cacofonix(port = port, server_ip = server_ip, server_port = server_port)
     while(True):
-        # rn.seed(10)
+        try:
+            # rn.seed(10)
+            time.sleep(random.randint(0,4))
+            event = random.randint(0, len(EVENTS)-1)
+            team = random.randint(0, len(TEAMS)-1)
+            lead = random.randint(1, 100)
+            score = create_flavor_statement(team, event, lead)
 
-        time.sleep(random.randint(0,4))
-        event = random.randint(0, len(EVENTS)-1)
-        team = random.randint(0, len(TEAMS)-1)
-        lead = random.randint(1, 100)
-        score = create_flavor_statement(team, event, lead)
+            print score
+            fonix.set_score(EVENTS[event], score)
 
-        print score
-        fonix.set_score(EVENTS[event], score)
+            if random.random() > 0.5:
+                medal_winners = random.sample(TEAMS, 3)
+                print medal_winners
+                [fonix.increment_medal_tally(team, MEDALS[medal]) for medal, team in enumerate(medal_winners)]
+        except (KeyboardInterrupt):
+            print "\nStopping\n"
+            print "Avg. latency: %f"%(float(sum(fonix.latencies))/(len(fonix.latencies)+1))
+            break
 
-        if random.random() > 0.5:
-            medal_winners = random.sample(TEAMS, 3)
-            print medal_winners
-            [fonix.increment_medal_tally(team, MEDALS[medal]) for medal, team in enumerate(medal_winners)]
+
+def test_main(port=8001, server_ip='http://localhost', server_port=8000):
+    fonix = Cacofonix(port = port, server_ip = server_ip, server_port = server_port)
+    while(True):
+        try:
+            # rn.seed(10)
+            time.sleep(random.randint(0,4))
+            event = 0
+            team = 0
+            lead = 1
+            score = create_flavor_statement(team, event, lead)
+
+            print score
+            fonix.set_score(EVENTS[event], score)
+
+            print "Gaul: gold"
+            fonix.increment_medal_tally("Gaul", "gold")
+            
+        except (KeyboardInterrupt):
+            print "\nStopping\n"
+            print "Avg. latency: %f"%(float(sum(fonix.latencies))/(len(fonix.latencies)+1))
+            break
+
 
 
 if __name__ == "__main__":
-    main()
+    test_main()
 
 
 
