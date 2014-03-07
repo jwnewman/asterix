@@ -16,20 +16,19 @@ def create_flavor_statement(team, event, lead):
 class Cacofonix:
     def __init__(self, port, server_ip, server_port):
         self.port = port
+        self.secret_id = "SECRET PASSWORD LOL HOORAY"
         self.server = xmlrpclib.ServerProxy("%s:%d"%(server_ip, server_port))
 
     def set_score(self, event, score):
         # TODO get back ack/error
-        self.server.set_score(event, score)
+        self.server.set_score(event, score, self.secret_id)
 
     def increment_medal_tally(self, team, medal):
         # TODO get back ack/error
-        self.server.increment_medal_tally(team, medal)
+        self.server.increment_medal_tally(team, medal, self.secret_id)
 
 def main(port=8001, server_ip='http://localhost', server_port=8000):
-    print "main"
     fonix = Cacofonix(port = port, server_ip = server_ip, server_port = server_port)
-
     while(True):
         # rn.seed(10)
 

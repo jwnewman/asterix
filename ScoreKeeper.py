@@ -65,41 +65,48 @@ class ScoreKeeper:
     
     @synchronized(Global.client_lock)
     def register_client(self, client_id, events, teams):
-        if type(client_id) != tuple:
-            return "Error 29010 -- invalid client id"
         if len(client_id) != 2:
             return "Error 39484 -- invalid client id"
         if type(client_id[0]) != str:
             return "Error 432 -- invalid client id"
         if type(client_id[1]) != int:
             return "Error 940 -- invalid client id"
-        ack = "Successfully registered for: "
-        err = "Error in registering for: "
+        ack = "Successfully registered for: \n"
+        err = "Error in registering for: \n"
+        errors = False
         for event in events:
             if event.lower() in [e.lower() for e in EVENTS]:
                 self.events[event.lower()].add_client(client_id)
-                ack += "%\ts\n"%event
+                ack += "\t%s\n"%event
             else:
-                err += "%\ts\n"%event
+                err += "\t%s\n"%event
+                errors = True
 
         for team in teams:
             if team.lower() in [t.lower() for t in TEAMS]:
                 self.teams[team.lower()].add_client(client_id)
-                ack += "%\ts\n"%team
+                ack += "\t%s\n"%team
             else:
-                err += "%\ts\n"%team
-        return ack + err
+                err += "\t%s\n"%team
+                errors = True
+        if not errors:
+            return ack
+        else:
+            return ack + err
 
     @synchronized_check(Global.client_lock)
     def get_registered_clients_for_event(self, event_type):
         if event_type.lower() not in [e.lower() for e in EVENTS]:
-            return "Error 0928 -- unrecognized event type:\n\t%s"%event_type
+            print "Error 0928 -- unrecognized event type:\n\t%s"%event_type
+            return []
+        print self.events[event_type.lower()].get_clients()
         return self.events[event_type.lower()].get_clients()
 
     @synchronized_check(Global.client_lock)
     def get_registered_clients_for_team(self, team_name):
         if team_name.lower() not in [t.lower() for t in TEAMS]:
-            return "Error 0273 -- unrecognized team name\n\t%s"%team_name
+            print "Error 0273 -- unrecognized team name\n\t%s"%team_name
+            return []
         return self.teams[team_name.lower()].get_clients()
 
 

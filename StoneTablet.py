@@ -35,19 +35,22 @@ class StoneTablet:
     class ListenerFunctions:
         def print_medal_tally_for_team(self, medal_tally):
             print medal_tally
+            return 1
         def print_score_for_event(self, score):
             print score
+            return 1
 
     def register_with_server(self):
-        print self.server.register_client(client_id=self.id, events=self.events, teams=self.teams)
-
+        print self.server.register_client(self.id, self.events, self.teams)
     def serve(self):
-        callback_server = SimpleXMLRPCServer("%s:%d"%(self.get_my_IP(), self.port))
+        # callback_server = SimpleXMLRPCServer(self.id[0], self.id[1])
+        callback_server = SimpleXMLRPCServer(self.id, requestHandler=SimpleXMLRPCRequestHandler)
         callback_server.register_introspection_functions()
+        callback_server.register_instance(self.ListenerFunctions())
         self.register_with_server()
         callback_server.serve_forever()
 
-def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http://localhost', server_port=8000, client_pull = True, pull_rate = 5):
+def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http://localhost', server_port=8000, client_pull = False, pull_rate = 5):
     client = StoneTablet(ip, port, server_ip, server_port, teams, events)
 
     # Client-pull architecture
@@ -60,7 +63,8 @@ def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http
     client.serve()
 
 if __name__ == "__main__":
-    ip = '128.119.40.193'
+    # ip = '128.119.40.193'
+    ip = 'localhost'
     port = random.randint(8002, 9000)
     num_teams = random.randint(1, len(TEAMS))
     num_events = random.randint(1, len(EVENTS))
