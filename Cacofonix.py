@@ -14,6 +14,7 @@ UNITS = ["points", "laps", "baskets", "points"]
 # Creates the message that is sent back to the server.
 def create_flavor_statement(team, event, lead):
     # TODO: Make more variants
+
     return "What a day in %s! Currently in the lead is %s by %d %s."%(EVENTS[event].lower(), TEAMS[team], lead, UNITS[event])
 
 class Cacofonix:
@@ -23,19 +24,21 @@ class Cacofonix:
         self.secret_id = "SECRET PASSWORD LOL HOORAY"
         self.server = xmlrpclib.ServerProxy("%s:%d"%(server_ip, server_port))
         # Latency measurements for server-push architecture
-        self.latencies = []
+        self.log_file = open("log_cacofonix.txt", "w+")
     # Calls the server with an updated score for an event, gets an acknowledgment back.
     def set_score(self, event, score):
+        self.log_file.write("------Received Olympic Event Update: %s------\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
         # TODO get back ack/error
-        ack, latencies = self.server.set_score(event, score, self.secret_id)
+        ack = self.server.set_score(event, score, self.secret_id)
         print ack
-        self.latencies += latencies
+        self.log_file.write("%s\n"%ack)
     # Calls the server to increment the medal tally, gets an acknowledgment back.
     def increment_medal_tally(self, team, medal):
+        self.log_file.write("------Received Olympic Medal Update: %s------\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
         # TODO get back ack/error
-        ack, latencies = self.server.increment_medal_tally(team, medal, self.secret_id)
+        ack = self.server.increment_medal_tally(team, medal, self.secret_id)
         print ack
-        self.latencies += latencies
+        self.log_file.write("%s\n"%ack)
 
 def random_main(port=8001, server_ip='http://localhost', server_port=8000, update_rate=4):
     fonix = Cacofonix(port = port, server_ip = server_ip, server_port = server_port)
@@ -58,9 +61,7 @@ def random_main(port=8001, server_ip='http://localhost', server_port=8000, updat
                 print medal_winners
                 [fonix.increment_medal_tally(team, MEDALS[medal]) for medal, team in enumerate(medal_winners)]
         except (KeyboardInterrupt):
-            print "\nStopping\n"
-            print "Avg. latency: %f"%(float(sum(fonix.latencies))/(len(fonix.latencies)+1))
-            break
+            raise
 
 
 def test_main(port=8001, server_ip='http://localhost', server_port=8000, update_rate=4):
@@ -81,8 +82,6 @@ def test_main(port=8001, server_ip='http://localhost', server_port=8000, update_
             fonix.increment_medal_tally("Gaul", "gold")
             
         except (KeyboardInterrupt):
-            print "\nStopping\n"
-            print "Avg. latency: %f"%(float(sum(fonix.latencies))/(len(fonix.latencies)+1))
             break
 
 

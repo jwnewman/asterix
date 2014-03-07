@@ -16,9 +16,10 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer): pass # 
 
 # The following defines the ObelixServer RPC interface
 class ObelixServerFunctions:
-    def __init__(self):
+    def __init__(self, log_file):
         self.keeper = ScoreKeeper() # Create the ScoreKeeper - this is what deals with the data the server keeps.
         self.secret_id = "SECRET PASSWORD LOL HOORAY" # This secret password is known only by ObelixServer and Cacofonix. It allows Cacofonix to set scores and medal tallies.
+        self.log_file = log_file
 
     # A StoneTablet in client pull mode can call this to retrieve the current medal tally for a team with name team_name.
     def get_medal_tally(self, team_name):
@@ -28,8 +29,8 @@ class ObelixServerFunctions:
         if password != self.secret_id:
             return "Unauthorized entry attempt."
         ack = self.keeper.increment_medal_tally(team_name, medal_type)
-        latencies = self.push_update_for_team(self.keeper.get_registered_clients_for_team(team_name), team_name) # Immediately update all StoneTablets registered to receive updates for this team.
-        return ack, latencies
+        self.push_update_for_team(self.keeper.get_registered_clients_for_team(team_name), team_name) # Immediately update all StoneTablets registered to receive updates for this team.
+        return ack
     # A StoneTablet in client pull mode can call this to retrieve the current score for a specific event_type.
     def get_score(self, event_type):
         return self.keeper.get_score(event_type)
@@ -37,51 +38,44 @@ class ObelixServerFunctions:
     def set_score(self, event_type, score, password):
         if password != self.secret_id:
             return "Unauthorized entry attempt."
-        ack = self.keeper.set_score(event_type, score)
-        latencies = self.push_update_for_event(self.keeper.get_registered_clients_for_event(event_type), event_type) # Immediately update all StoneTablets registered to receive updates for this event.
-        return ack, latencies
+        self.push_update_for_event(self.keeper.get_registered_clients_for_event(event_type), event_type) # Immediately update all StoneTablets registered to receive updates for this event.
+        return ack
     # A StoneTablet in server push mode calls this to register itself to receive updates for a list of teams and events.
     def register_client(self, client_id, events, teams):
         return self.keeper.register_client(client_id, events, teams)
     # Updates clients in server-push mode that are registered to receive updates for an event.
     def push_update_for_event(self, clients, event_type):
-        latencies = []
+        self.log_file.write("----PUSHING NEW EVENT UPDATE: %s----\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
         time_of_update = time.time() # Measure latency
         # Loop over all registered clients and send the update.
         for client_id in clients:
-            print client_id
             client_ip, client_port = client_id
             s = xmlrpclib.ServerProxy("http://%s:%d"%(client_ip, client_port))
             # If a client has disconnected, unsubscribe that client from all teams and events.
             try:
-                latency = s.print_score_for_event(self.keeper.get_score(event_type), time_of_update)
-                print latency
-                latencies.append(latency)
+                s.print_score_for_event(self.keeper.get_score(event_type), time_of_update)
+                self.log_file.write("Successfully reached http://%s:%d\n"%(client_ip, client_port))
             except socket.error as err:
-                print "Unable to reach http://%s:%d, unsubscribing."%(client_ip, client_port)
+                self.log_file.write("Unable to reach http://%s:%d, unsubscribing.\n"%(client_ip, client_port))
                 self.keeper.unregister_client(client_id)
-                pass
-        return latencies
+        return 1
 
     # Updates clients in server-push mode that are registered to receive updates for a team.
     def push_update_for_team(self, clients, team_name):
-        latencies = []
+        self.log_file.write("----PUSHING NEW EVENT UPDATE: %s----\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
         time_of_update = time.time() # Measure latency
         # Loop over all registered clients and send the update.
         for client_id in clients:
-            print client_id
             client_ip, client_port = client_id
             s = xmlrpclib.ServerProxy("http://%s:%d"%(client_ip, client_port))
             # If a client has disconnected, unsubscribe that client from all teams and events.
             try:
-                latency = s.print_medal_tally_for_team(self.keeper.get_medal_tally(team_name), time_of_update)
-                print latency
-                latencies.append(latency)
+                s.print_medal_tally_for_team(self.keeper.get_medal_tally(team_name), time_of_update)
+                self.log_file.write("Successfully reached http://%s:%d\n"%(client_ip, client_port))
             except socket.error as err:
-                print "Unable to reach http://%s:%d, unsubscribing."%(client_ip, client_port)
+                self.log_file.write("Unable to reach http://%s:%d, unsubscribing.\n"%(client_ip, client_port))
                 self.keeper.unregister_client(client_id)
-                pass 
-        return latencies
+        return 1
 
 # Create the RPCHandler for ObelixServer.
 class ObelixRPCHandler(SimpleXMLRPCRequestHandler):
@@ -94,9 +88,10 @@ class ObelixRPCHandler(SimpleXMLRPCRequestHandler):
         SimpleXMLRPCRequestHandler.do_POST(self)
 
 def main(ip, port=8000):
+    log_file = open("log_server.txt", "w+")
     server = AsyncXMLRPCServer((ip, port), requestHandler=ObelixRPCHandler) # Create the server
     server.register_introspection_functions()
-    server.register_instance(ObelixServerFunctions()) # Register the RPC interface
+    server.register_instance(ObelixServerFunctions(log_file)) # Register the RPC interface
     server.serve_forever() # Serve
 
 if __name__ == "__main__":
