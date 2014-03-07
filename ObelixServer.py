@@ -19,16 +19,16 @@ class ObelixServerFunctions:
         self.keeper = ScoreKeeper()
         self.secret_id = "SECRET PASSWORD LOL HOORAY"
 
-    def get_medal_tally(self, team_name):
-        return self.keeper.get_medal_tally(team_name)
+    def get_medal_tally(self, team_name, request_time):
+        return self.keeper.get_medal_tally(team_name), time.time()-request_time
     def increment_medal_tally(self, team_name, medal_type, password):
         if password != self.secret_id:
             return "Unauthorized entry attempt."
         ack = self.keeper.increment_medal_tally(team_name, medal_type)
         self.push_update_for_team(self.keeper.get_registered_clients_for_team(team_name), team_name)
         return ack
-    def get_score(self, event_type):
-        return self.keeper.get_score(event_type)
+    def get_score(self, event_type, request_time):
+        return self.keeper.get_score(event_type), time.time()-request_time
     def set_score(self, event_type, score, password):
         if password != self.secret_id:
             return "Unauthorized entry attempt."
@@ -41,13 +41,13 @@ class ObelixServerFunctions:
         for client_id in clients:
             client_ip, client_port = client_id
             s = xmlrpclib.ServerProxy("http://%s:%d"%(client_ip, client_port))
-            s.print_score_for_event(self.keeper.get_score(event_type))
+            latency = s.print_score_for_event(self.keeper.get_score(event_type))
         return
     def push_update_for_team(self, clients, team_name):
         for client_id in clients:
             client_ip, client_port = client_id
             s = xmlrpclib.ServerProxy("http://%s:%d"%(client_ip, client_port))
-            s.print_score_for_event(self.keeper.get_medal_tally(team_name))
+            latency = s.print_score_for_event(self.keeper.get_medal_tally(team_name))
         return
 
 class ObelixRPCHandler(SimpleXMLRPCRequestHandler):

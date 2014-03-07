@@ -14,6 +14,7 @@ class StoneTablet:
         self.events = events
         print "%s:%d"%(server_ip, server_port)
         self.server = xmlrpclib.ServerProxy("%s:%d"%(server_ip, server_port))
+        self.latencies = []
 
     # Methods for client-pull architecture
 
@@ -25,20 +26,25 @@ class StoneTablet:
 
     def pull(self):
         for team in self.teams:
+            request_time = time.time()
             print self.get_medal_tally(team)
+            self.latencies.append(time.time() - request_time)
         for event in self.events:
+            request_time = time.time()
             print self.get_score(event)
+            self.latencies.append(time.time() - request_time)
         print "--------------------"
 
     # Methods for server-push architecture
 
     class ListenerFunctions:
-        def print_medal_tally_for_team(self, medal_tally):
+        def print_medal_tally_for_team(self, medal_tally, time_of_update):
             print medal_tally
-            return 1
-        def print_score_for_event(self, score):
+            return time.time() - time_of_update
+        def print_score_for_event(self, score, time_of_update):
             print score
-            return 1
+            StoneTablet.latencies.append(time.time() - time_of_update)
+            return time.time() - time_of_update
 
     def register_with_server(self):
         print self.server.register_client(self.id, self.events, self.teams)
