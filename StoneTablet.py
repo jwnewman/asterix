@@ -27,7 +27,7 @@ class StoneTablet:
         # Latency measurements for client-pull architecture
         if not os.path.exists("latencies"):
             os.makedirs("latencies")
-        self.latency_file = open("latencies/%d.txt"%port, "w+", 5)
+        self.latency_file = open("latencies/pull/20/%d.txt"%port, "w+", 5)
         self.last_update = None
 
     # Methods for client-pull architecture
@@ -108,7 +108,7 @@ class StoneTablet:
         self.register_with_server()
         callback_server.serve_forever()
 
-def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='localhost', server_port=8000, client_pull=False, pull_rate=1):
+def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='localhost', server_port=8000, client_pull=False, pull_rate=10):
     client = StoneTablet(ip, port, server_ip, server_port, teams, events)
     try:
         # Client-pull architecture

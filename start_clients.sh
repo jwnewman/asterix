@@ -1,12 +1,12 @@
 # Change to correct directory containing source files
-src_dir=/Users/aaronschein/Documents/courses/spring14/systems/labs/asterix
+src_dir=.
 server_ip=localhost
 server_port=8000
 
 ip=localhost
 
 # Number of clients in client-pull mode
-N=3
+N=20
 arch=pull
 mode=random
 
@@ -18,7 +18,7 @@ do
 done
 
 # Number of clients in server-push mode
-M=3
+M=0
 arch=push
 for (( j=1; j<=$M; j++ ))
 do
