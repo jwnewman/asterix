@@ -2,6 +2,8 @@ import xmlrpclib
 import random
 import time
 
+# This class provides the server with real-time updates about Olympic teams and events.
+
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 
 TEAMS = ["Gaul", "Rome", "Carthage", "Greece", "Persia"]
@@ -9,22 +11,26 @@ MEDALS = ["gold", "silver", "bronze"]
 EVENTS = ["Stone Curling", "Stone Skating", "Underwater Stone Weaving", "Synchronized Stone Swimming"]
 UNITS = ["points", "laps", "baskets", "points"]
 
+# Creates the message that is sent back to the server.
 def create_flavor_statement(team, event, lead):
     # TODO: Make more variants
     return "What a day in %s! Currently in the lead is %s by %d %s."%(EVENTS[event].lower(), TEAMS[team], lead, UNITS[event])
 
 class Cacofonix:
+    # Cacofonix needs to know the server IP and port, and the secret password which only Cacofonix and the server know.
     def __init__(self, port, server_ip, server_port):
         self.port = port
         self.secret_id = "SECRET PASSWORD LOL HOORAY"
         self.server = xmlrpclib.ServerProxy("%s:%d"%(server_ip, server_port))
         # Latency measurements for server-push architecture
         self.latencies = []
+    # Calls the server with an updated score for an event, gets an acknowledgment back.
     def set_score(self, event, score):
         # TODO get back ack/error
         ack, latencies = self.server.set_score(event, score, self.secret_id)
         print ack
         self.latencies += latencies
+    # Calls the server to increment the medal tally, gets an acknowledgment back.
     def increment_medal_tally(self, team, medal):
         # TODO get back ack/error
         ack, latencies = self.server.increment_medal_tally(team, medal, self.secret_id)
@@ -33,6 +39,8 @@ class Cacofonix:
 
 def random_main(port=8001, server_ip='http://localhost', server_port=8000, update_rate=4):
     fonix = Cacofonix(port = port, server_ip = server_ip, server_port = server_port)
+    # Sends updates to the server infinitely with a randomly spaced amount of time in between.
+    # Increments the medal tally for a random team about half as often as it sets the score for an event.
     while(True):
         try:
             # rn.seed(10)

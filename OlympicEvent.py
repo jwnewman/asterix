@@ -1,3 +1,7 @@
+# This class contains all the information that an OlympicEvent needs to store about itself and provides getters and setters.
+# Namely, this information is the name of the event, the current score, and the contact information for any clients registered
+# for this event in server push mode.
+
 class OlympicEvent:
     def __init__(self, event_type):
         self.event_type = event_type

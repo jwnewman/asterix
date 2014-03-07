@@ -1,3 +1,7 @@
+# This class contains all the information that an Team needs to store about itself and provides getters and setters.
+# Namely, this information is the name of the team, the current medal tallies, and the contact information for any clients registered
+# for this event in server push mode.
+
 class Team:
 
     def __init__(self, name):

@@ -7,6 +7,9 @@ import random
 TEAMS = ["Gaul", "Rome", "Carthage", "Greece", "Persia"]
 EVENTS = ["Stone Curling", "Stone Skating", "Underwater Stone Weaving", "Synchronized Stone Swimming"]
 
+# StoneTablet is the app that clients will run on their SmartStones. Each client can parameterize their StoneTablet with a list of teams and events of interest.
+# If no parameters are provided, these will be selected randomly. The client also measures the latency from the server in receiving their request.
+
 class StoneTablet:
     def __init__(self, ip, port, server_ip, server_port, teams=[], events=[]):
         self.id = (ip, port)
@@ -21,13 +24,16 @@ class StoneTablet:
         self.last_update = None
 
     # Methods for client-pull architecture
-
+    
+    # This function polls the server for the most recent medal_tally for the provided team.
     def get_medal_tally(self, team):
         return self.server.get_medal_tally(team)
 
+    # This function polls the server for the most recent score for the provided event.
     def get_score(self, event):
         return self.server.get_score(event)
 
+    # Polls the server for all of the latest scores and tallies for the events and teams that the StoneTablet follows.
     def pull(self):
         if self.last_update is None:
             self.log_file.write("\nLoading data...\n\n")
@@ -53,10 +59,12 @@ class StoneTablet:
 
     # Methods for server-push architecture
 
+    # RPC interface for the server to call in server-push mode.
     class ListenerFunctions:
         def __init__(self, log_file, latency_file):
             self.log_file = log_file
             self.latency_file = latency_file
+        # Receives a medal tally from the server and displays it
         def print_medal_tally_for_team(self, medal_tally, time_of_update):
             print medal_tally
             latency = time.time() - time_of_update
@@ -64,6 +72,7 @@ class StoneTablet:
             self.log_file.write("%s\n\n"%medal_tally)
             self.latency_file.write("%f\n"%latency)
             return latency
+        # Recieves a score from the server and displays it.
         def print_score_for_event(self, score, time_of_update):
             print score
             latency = time.time() - time_of_update
@@ -72,10 +81,12 @@ class StoneTablet:
             self.latency_file.write("%f\n"%latency)
             return latency
 
+    # Sends information to the server about this client so that it can be registered for teams and events of interest.
     def register_with_server(self):
         print self.server.register_client(self.id, self.events, self.teams)
+
+    # Server push mode: Registers with the server and then listens for updates from the server.
     def serve(self):
-        # callback_server = SimpleXMLRPCServer(self.id[0], self.id[1])
         callback_server = SimpleXMLRPCServer(self.id, requestHandler=SimpleXMLRPCRequestHandler)
         callback_server.register_introspection_functions()
         callback_server.register_instance(self.ListenerFunctions(self.log_file, self.latency_file))
@@ -96,16 +107,12 @@ def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http
         raise
 
 if __name__ == "__main__":
-    # ip = '128.119.40.193'
-    ip = 'localhost'
+    ip = 'localhost' # Hard-coded to be local, although we have tested this on multiple machines by providing the server_ip as a parameter.
     port = random.randint(8002, 9000)
     num_teams = random.randint(1, len(TEAMS))
     num_events = random.randint(1, len(EVENTS))
-    # fav_teams = random.sample(TEAMS, num_teams)
-    # fav_events = random.sample(EVENTS, num_events)
     fav_teams = ["Gaul"]
     fav_events = ["Stone Curling"]
-    # server_ip = '128.119.40.193'
     server_ip = 'http://localhost'
 
     main(ip=ip, port=port, server_ip=server_ip, server_port=8000, teams=fav_teams, events=fav_events)
