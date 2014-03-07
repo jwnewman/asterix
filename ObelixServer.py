@@ -8,6 +8,9 @@ from ScoreKeeper import ScoreKeeper
 from Global import Global
 import socket
 import time
+import getopt
+import os
+import sys
 
 HOST_NAME = 'localhost' # The system is assumed to be running locally. To run across machines, use the line below.
 # HOST_NAME = socket.gethostbyname(socket.gethostname())
@@ -100,4 +103,16 @@ def main(ip, port=8000):
     server.serve_forever() # Serve
 
 if __name__ == "__main__":
-    main(ip = HOST_NAME, port=8000)
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "", ["run_locally=","serport="])
+    except getopt.error, msg:
+        print msg
+        sys.exit(2)
+
+    run_locally, port = [x[1] for x in opts]
+    if str(run_locally):
+        ip = "localhost"
+    else:
+        ip = socket.gethostbyname(socket.gethostname())
+    print port
+    main(ip = ip, port=int(port))

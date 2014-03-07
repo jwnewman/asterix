@@ -123,12 +123,17 @@ def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='loca
 
 if __name__ == "__main__":
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "", ["ip=","port=","serip=","serport=","arch=","mode="])
+        opts, args = getopt.getopt(sys.argv[1:], "", ["run_locally=","port=","serip=","serport=","arch=","mode="])
     except getopt.error, msg:
         print msg
         sys.exit(2)
 
-    ip, port, server_ip, server_port, arch, mode = [x[1] for x in opts]
+    run_locally, port, server_ip, server_port, arch, mode = [x[1] for x in opts]
+
+    if str(run_locally):
+        ip = "localhost"
+    else:
+        ip = socket.gethostbyname(socket.gethostname())
 
     if arch.lower() == "pull".lower():
         client_pull = True

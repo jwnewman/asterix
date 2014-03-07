@@ -1,6 +1,9 @@
 import xmlrpclib
 import random
 import time
+import getopt
+import os
+import sys
 
 # This class provides the server with real-time updates about Olympic teams and events.
 
@@ -22,7 +25,7 @@ class Cacofonix:
     def __init__(self, port, server_ip, server_port):
         self.port = port
         self.secret_id = "SECRET PASSWORD LOL HOORAY"
-        self.server = xmlrpclib.ServerProxy("%s:%d"%(server_ip, server_port))
+        self.server = xmlrpclib.ServerProxy("http://%s:%d"%(server_ip, server_port))
         # Latency measurements for server-push architecture
         self.log_file = open("log_cacofonix.txt", "w+", 5)
     # Calls the server with an updated score for an event, gets an acknowledgment back.
@@ -38,7 +41,7 @@ class Cacofonix:
         print ack
         self.log_file.write("%s\n"%ack)
 
-def random_main(port=8001, server_ip='http://localhost', server_port=8000, update_rate=1):
+def random_main(port=8001, server_ip='localhost', server_port=8000, update_rate=1):
     fonix = Cacofonix(port = port, server_ip = server_ip, server_port = server_port)
     # Sends updates to the server infinitely with a randomly spaced amount of time in between.
     # Increments the medal tally for a random team about half as often as it sets the score for an event.
@@ -60,7 +63,7 @@ def random_main(port=8001, server_ip='http://localhost', server_port=8000, updat
             raise
 
 
-def test_main(port=8001, server_ip='http://localhost', server_port=8000, update_rate=1):
+def test_main(port=8001, server_ip='localhost', server_port=8000, update_rate=1):
     fonix = Cacofonix(port = port, server_ip = server_ip, server_port = server_port)
     while(True):
         try:
@@ -80,10 +83,25 @@ def test_main(port=8001, server_ip='http://localhost', server_port=8000, update_
         except (KeyboardInterrupt):
             break
 
-
-
 if __name__ == "__main__":
-    random_main()
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "", ["port=", "serip=","serport=","mode=", "rate="])
+    except getopt.error, msg:
+        print msg
+        sys.exit(2)
+
+    port, server_ip, server_port, mode, rate = [x[1] for x in opts]
+
+    print opts
+
+    if mode == "random":
+        random_main(port=int(port), server_ip=server_ip, server_port=int(server_port), update_rate=int(rate))
+    elif mode == "testing":
+        test_main(port=int(port), server_ip=server_ip, server_port=int(server_port), update_rate=int(rate))
+    else:
+        raise TypeError
+
+    
 
 
 

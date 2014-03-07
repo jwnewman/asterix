@@ -5,9 +5,7 @@ server_port=8000
 
 # Begin Olympic games and Cacofonix updates
 cacofonix_port=8001
-random=true
+mode=random
 update_rate=4
 
-client_ip='localhost'
-client_port=8002
-python $src_dir/Cacofonix.py
+python $src_dir/Cacofonix.py --port $cacofonix_port --serip $server_ip --serport $server_port --mode $mode --rate $update_rate
