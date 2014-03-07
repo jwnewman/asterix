@@ -23,7 +23,7 @@ def synchronized_check(lock):
     def wrap(f):
         def newFunction(*args, **kw):
             while(lock.locked()):
-                time.sleep(0.1)
+                pass
             return f(*args, **kw)
         return newFunction
     return wrap

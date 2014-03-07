@@ -16,9 +16,10 @@ HOST_NAME = 'localhost'
 class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer): pass
 
 class ObelixServerFunctions:
-    def __init__(self):
+    def __init__(self, log_file):
         self.keeper = ScoreKeeper()
         self.secret_id = "SECRET PASSWORD LOL HOORAY"
+        self.log_file = log_file
 
     def get_medal_tally(self, team_name):
         return self.keeper.get_medal_tally(team_name)
@@ -26,51 +27,45 @@ class ObelixServerFunctions:
         if password != self.secret_id:
             return "Unauthorized entry attempt."
         ack = self.keeper.increment_medal_tally(team_name, medal_type)
-        latencies = self.push_update_for_team(self.keeper.get_registered_clients_for_team(team_name), team_name)
-        return ack, latencies
+        self.push_update_for_team(self.keeper.get_registered_clients_for_team(team_name), team_name)
+        return ack
     def get_score(self, event_type):
         return self.keeper.get_score(event_type)
     def set_score(self, event_type, score, password):
         if password != self.secret_id:
             return "Unauthorized entry attempt."
         ack = self.keeper.set_score(event_type, score)
-        latencies = self.push_update_for_event(self.keeper.get_registered_clients_for_event(event_type), event_type)
-        return ack, latencies
+        self.push_update_for_event(self.keeper.get_registered_clients_for_event(event_type), event_type)
+        return ack
     def register_client(self, client_id, events, teams):
         return self.keeper.register_client(client_id, events, teams)
     def push_update_for_event(self, clients, event_type):
-        latencies = []
+        self.log_file.write("----PUSHING NEW EVENT UPDATE: %s----\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
         time_of_update = time.time()
         for client_id in clients:
-            print client_id
             client_ip, client_port = client_id
             s = xmlrpclib.ServerProxy("http://%s:%d"%(client_ip, client_port))
             try:
-                latency = s.print_score_for_event(self.keeper.get_score(event_type), time_of_update)
-                print latency
-                latencies.append(latency)
+                s.print_score_for_event(self.keeper.get_score(event_type), time_of_update)
+                self.log_file.write("Successfully reached http://%s:%d\n"%(client_ip, client_port))
             except socket.error as err:
-                print "Unable to reach http://%s:%d, unsubscribing."%(client_ip, client_port)
+                self.log_file.write("Unable to reach http://%s:%d, unsubscribing.\n"%(client_ip, client_port))
                 self.keeper.unregister_client(client_id)
-                pass
-        return latencies
+        return 1
 
     def push_update_for_team(self, clients, team_name):
-        latencies = []
+        self.log_file.write("----PUSHING NEW EVENT UPDATE: %s----\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
         time_of_update = time.time()
         for client_id in clients:
-            print client_id
             client_ip, client_port = client_id
             s = xmlrpclib.ServerProxy("http://%s:%d"%(client_ip, client_port))
             try:
-                latency = s.print_medal_tally_for_team(self.keeper.get_medal_tally(team_name), time_of_update)
-                print latency
-                latencies.append(latency)
+                s.print_medal_tally_for_team(self.keeper.get_medal_tally(team_name), time_of_update)
+                self.log_file.write("Successfully reached http://%s:%d\n"%(client_ip, client_port))
             except socket.error as err:
-                print "Unable to reach http://%s:%d, unsubscribing."%(client_ip, client_port)
+                self.log_file.write("Unable to reach http://%s:%d, unsubscribing.\n"%(client_ip, client_port))
                 self.keeper.unregister_client(client_id)
-                pass 
-        return latencies
+        return 1
 
 class ObelixRPCHandler(SimpleXMLRPCRequestHandler):
     rpc_paths = ('/RPC2',)
@@ -81,9 +76,10 @@ class ObelixRPCHandler(SimpleXMLRPCRequestHandler):
         SimpleXMLRPCRequestHandler.do_POST(self)
 
 def main(ip, port=8000):
+    log_file = open("log_server.txt", "w+")
     server = AsyncXMLRPCServer((ip, port), requestHandler=ObelixRPCHandler)
     server.register_introspection_functions()
-    server.register_instance(ObelixServerFunctions())
+    server.register_instance(ObelixServerFunctions(log_file))
     server.serve_forever()
 
 if __name__ == "__main__":
