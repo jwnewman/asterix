@@ -1,0 +1,1 @@
+kill $(ps aux | grep '[S]toneTablet.py' | awk '{print $2}')

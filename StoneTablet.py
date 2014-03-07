@@ -3,6 +3,9 @@ import socket
 import time
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 import random
+import sys 
+import getopt
+import os
 
 TEAMS = ["Gaul", "Rome", "Carthage", "Greece", "Persia"]
 EVENTS = ["Stone Curling", "Stone Skating", "Underwater Stone Weaving", "Synchronized Stone Swimming"]
@@ -15,12 +18,16 @@ class StoneTablet:
         self.id = (ip, port)
         self.teams = teams
         self.events = events
-        print "%s:%d"%(server_ip, server_port)
-        self.server = xmlrpclib.ServerProxy("%s:%d"%(server_ip, server_port))
+        # print "%s:%d"%(server_ip, server_port)
+        self.server = xmlrpclib.ServerProxy("http://%s:%d"%(server_ip, server_port))
         # Log file for output statements
-        self.log_file = open("log_client_%d.txt"%port, "w+")
+        if not os.path.exists("client_logs"):
+            os.makedirs("client_logs")
+        self.log_file = open("client_logs/%d.txt"%port, "w+", 5)
         # Latency measurements for client-pull architecture
-        self.latency_file = open("latency_client_%d.txt"%port, "w+")
+        if not os.path.exists("latencies"):
+            os.makedirs("latencies")
+        self.latency_file = open("latencies/%d.txt"%port, "w+", 5)
         self.last_update = None
 
     # Methods for client-pull architecture
@@ -43,7 +50,7 @@ class StoneTablet:
         for team in self.teams:
             request_time = time.time()
             medal_update = self.get_medal_tally(team)
-            print medal_update
+            # print medal_update
             self.log_file.write("%s\n"%medal_update)
             latency=time.time() - request_time
             self.latency_file.write("%f\n"%latency)
@@ -51,7 +58,7 @@ class StoneTablet:
         for event in self.events:
             request_time = time.time()
             score_update = self.get_score(event)
-            print score_update
+            # print score_update
             self.log_file.write("%s\n"%score_update)
             latency=time.time() - request_time
             self.latency_file.write("%f\n"%latency)
@@ -66,7 +73,7 @@ class StoneTablet:
             self.latency_file = latency_file
         # Receives a medal tally from the server and displays it
         def print_medal_tally_for_team(self, medal_tally, time_of_update):
-            print medal_tally
+            # print medal_tally
             latency = time.time() - time_of_update
             self.log_file.write("-------BREAKING NEWS: %s-------\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
             self.log_file.write("%s\n\n"%medal_tally)
@@ -74,7 +81,7 @@ class StoneTablet:
             return latency
         # Recieves a score from the server and displays it.
         def print_score_for_event(self, score, time_of_update):
-            print score
+            # print score
             latency = time.time() - time_of_update
             self.log_file.write("-------BREAKING NEWS: %s-------\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
             self.log_file.write("%s\n\n"%score)
@@ -83,17 +90,25 @@ class StoneTablet:
 
     # Sends information to the server about this client so that it can be registered for teams and events of interest.
     def register_with_server(self):
-        print self.server.register_client(self.id, self.events, self.teams)
+        # print self.server.register_client(self.id, self.events, self.teams)
+        self.server.register_client(self.id, self.events, self.teams)
 
     # Server push mode: Registers with the server and then listens for updates from the server.
     def serve(self):
-        callback_server = SimpleXMLRPCServer(self.id, requestHandler=SimpleXMLRPCRequestHandler)
+        available_port = False
+        while (not available_port):
+            try:
+                callback_server = SimpleXMLRPCServer(self.id, requestHandler=SimpleXMLRPCRequestHandler)
+                available_port = True
+            except socket.error as err:
+                self.id = (self.id[0], random.randint(8002, 9000))
+
         callback_server.register_introspection_functions()
         callback_server.register_instance(self.ListenerFunctions(self.log_file, self.latency_file))
         self.register_with_server()
         callback_server.serve_forever()
 
-def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http://localhost', server_port=8000, client_pull=False, pull_rate=5):
+def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='localhost', server_port=8000, client_pull=False, pull_rate=1):
     client = StoneTablet(ip, port, server_ip, server_port, teams, events)
     try:
         # Client-pull architecture
@@ -107,16 +122,34 @@ def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http
         raise
 
 if __name__ == "__main__":
-    ip = 'localhost' # Hard-coded to be local, although we have tested this on multiple machines by providing the server_ip as a parameter.
-    port = random.randint(8002, 9000)
-    num_teams = random.randint(1, len(TEAMS))
-    num_events = random.randint(1, len(EVENTS))
-    fav_teams = ["Gaul"]
-    fav_events = ["Stone Curling"]
-    server_ip = 'http://localhost'
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "", ["ip=","port=","serip=","serport=","arch=","mode="])
+    except getopt.error, msg:
+        print msg
+        sys.exit(2)
 
-    main(ip=ip, port=port, server_ip=server_ip, server_port=8000, teams=fav_teams, events=fav_events)
+    ip, port, server_ip, server_port, arch, mode = [x[1] for x in opts]
 
+    if arch.lower() == "pull".lower():
+        client_pull = True
+    elif arch.lower() == "push".lower():
+        client_pull = False
+    else:
+        raise TypeError
+
+    if mode.lower() == "random".lower():
+        num_teams = random.randint(1, len(TEAMS))
+        num_events = random.randint(1, len(EVENTS))
+        fav_teams = random.sample(TEAMS, num_teams)
+        fav_events = random.sample(EVENTS, num_events)
+    elif mode.lower() == "testing".lower():
+        fav_teams = ["Gaul"]
+        fav_events = ["Stone Curling"]
+    else:
+        raise TypeError
+
+    # main(ip=ip, port=port, server_ip=server_ip, server_port=8000, teams=fav_teams, events=fav_events)
+    main(ip=ip, port=int(port), teams=fav_teams, events=fav_events, server_ip=server_ip, server_port=int(server_port), client_pull=client_pull)
 
 
 

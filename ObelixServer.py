@@ -38,6 +38,7 @@ class ObelixServerFunctions:
     def set_score(self, event_type, score, password):
         if password != self.secret_id:
             return "Unauthorized entry attempt."
+        ack = self.keeper.set_score(event_type, score)
         self.push_update_for_event(self.keeper.get_registered_clients_for_event(event_type), event_type) # Immediately update all StoneTablets registered to receive updates for this event.
         return ack
     # A StoneTablet in server push mode calls this to register itself to receive updates for a list of teams and events.
@@ -45,6 +46,8 @@ class ObelixServerFunctions:
         return self.keeper.register_client(client_id, events, teams)
     # Updates clients in server-push mode that are registered to receive updates for an event.
     def push_update_for_event(self, clients, event_type):
+        if len(clients)==0:
+            return 0
         self.log_file.write("----PUSHING NEW EVENT UPDATE: %s----\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
         time_of_update = time.time() # Measure latency
         # Loop over all registered clients and send the update.
@@ -62,6 +65,8 @@ class ObelixServerFunctions:
 
     # Updates clients in server-push mode that are registered to receive updates for a team.
     def push_update_for_team(self, clients, team_name):
+        if len(clients)==0:
+            return 0
         self.log_file.write("----PUSHING NEW EVENT UPDATE: %s----\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
         time_of_update = time.time() # Measure latency
         # Loop over all registered clients and send the update.
@@ -88,7 +93,7 @@ class ObelixRPCHandler(SimpleXMLRPCRequestHandler):
         SimpleXMLRPCRequestHandler.do_POST(self)
 
 def main(ip, port=8000):
-    log_file = open("log_server.txt", "w+")
+    log_file = open("log_server.txt", "w+", 5)
     server = AsyncXMLRPCServer((ip, port), requestHandler=ObelixRPCHandler) # Create the server
     server.register_introspection_functions()
     server.register_instance(ObelixServerFunctions(log_file)) # Register the RPC interface
