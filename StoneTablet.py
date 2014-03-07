@@ -14,8 +14,11 @@ class StoneTablet:
         self.events = events
         print "%s:%d"%(server_ip, server_port)
         self.server = xmlrpclib.ServerProxy("%s:%d"%(server_ip, server_port))
+        # Log file for output statements
+        self.log_file = open("log_client_%d.txt"%port, "w+")
         # Latency measurements for client-pull architecture
-        self.latencies = []
+        self.latency_file = open("latency_client_%d.txt"%port, "w+")
+        self.last_update = None
 
     # Methods for client-pull architecture
 
@@ -26,24 +29,42 @@ class StoneTablet:
         return self.server.get_score(event)
 
     def pull(self):
+        if self.last_update is None:
+            self.log_file.write("\nLoading data...\n\n")
+        else:
+            self.log_file.write("\nRefreshing... last update: %s\n\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
+        self.log_file.write("-------LATEST MEDAL TALLY FOR TEAMS YOU FOLLOW-------\n")
         for team in self.teams:
             request_time = time.time()
-            print self.get_medal_tally(team)
-            self.latencies.append(time.time() - request_time)
+            medal_update = self.get_medal_tally(team)
+            print medal_update
+            self.log_file.write("%s\n"%medal_update)
+            latency=time.time() - request_time
+            self.latency_file.write("%f\n"%latency)
+        self.log_file.write("-------LATEST SCORE FOR EVENTS YOU FOLLOW-------\n")
         for event in self.events:
             request_time = time.time()
-            print self.get_score(event)
-            self.latencies.append(time.time() - request_time)
-        print "--------------------"
+            score_update = self.get_score(event)
+            print score_update
+            self.log_file.write("%s\n"%score_update)
+            latency=time.time() - request_time
+            self.latency_file.write("%f\n"%latency)
+        self.last_update = time.strftime("%d %b %Y %H:%M:%S", time.gmtime())
 
     # Methods for server-push architecture
 
     class ListenerFunctions:
+        def __init__(self, log_file):
+            self.log_file = log_file
         def print_medal_tally_for_team(self, medal_tally, time_of_update):
             print medal_tally
+            self.log_file.write("-------BREAKING NEWS: %s-------\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
+            self.log_file.write("%s\n\n"%medal_tally)
             return time.time() - time_of_update
         def print_score_for_event(self, score, time_of_update):
             print score
+            self.log_file.write("-------BREAKING NEWS: %s-------\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
+            self.log_file.write("%s\n\n"%score)
             return time.time() - time_of_update
 
     def register_with_server(self):
@@ -52,7 +73,7 @@ class StoneTablet:
         # callback_server = SimpleXMLRPCServer(self.id[0], self.id[1])
         callback_server = SimpleXMLRPCServer(self.id, requestHandler=SimpleXMLRPCRequestHandler)
         callback_server.register_introspection_functions()
-        callback_server.register_instance(self.ListenerFunctions())
+        callback_server.register_instance(self.ListenerFunctions(self.log_file))
         self.register_with_server()
         callback_server.serve_forever()
 
@@ -63,13 +84,10 @@ def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='http
         while(client_pull):
             client.pull()
             time.sleep(pull_rate)
-            print "*****************"
 
         # Server-push architecture
         client.serve()
     except KeyboardInterrupt:
-        print "\nStopping\n"
-        print "Avg. latency: %f"%(float(sum(client.latencies))/(len(client.latencies)+1))
         raise
 
 if __name__ == "__main__":

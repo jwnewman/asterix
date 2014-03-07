@@ -31,12 +31,12 @@ class Cacofonix:
         print ack
         self.latencies += latencies
 
-def random_main(port=8001, server_ip='http://localhost', server_port=8000):
+def random_main(port=8001, server_ip='http://localhost', server_port=8000, update_rate=4):
     fonix = Cacofonix(port = port, server_ip = server_ip, server_port = server_port)
     while(True):
         try:
             # rn.seed(10)
-            time.sleep(random.randint(0,4))
+            time.sleep(random.randint(0,update_rate))
             event = random.randint(0, len(EVENTS)-1)
             team = random.randint(0, len(TEAMS)-1)
             lead = random.randint(1, 100)
@@ -55,12 +55,12 @@ def random_main(port=8001, server_ip='http://localhost', server_port=8000):
             break
 
 
-def test_main(port=8001, server_ip='http://localhost', server_port=8000):
+def test_main(port=8001, server_ip='http://localhost', server_port=8000, update_rate=4):
     fonix = Cacofonix(port = port, server_ip = server_ip, server_port = server_port)
     while(True):
         try:
             # rn.seed(10)
-            time.sleep(random.randint(0,4))
+            time.sleep(update_rate)
             event = 0
             team = 0
             lead = 1
