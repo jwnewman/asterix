@@ -54,18 +54,23 @@ class StoneTablet:
     # Methods for server-push architecture
 
     class ListenerFunctions:
-        def __init__(self, log_file):
+        def __init__(self, log_file, latency_file):
             self.log_file = log_file
+            self.latency_file = latency_file
         def print_medal_tally_for_team(self, medal_tally, time_of_update):
             print medal_tally
+            latency = time.time() - time_of_update
             self.log_file.write("-------BREAKING NEWS: %s-------\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
             self.log_file.write("%s\n\n"%medal_tally)
-            return time.time() - time_of_update
+            self.latency_file.write("%f\n"%latency)
+            return latency
         def print_score_for_event(self, score, time_of_update):
             print score
+            latency = time.time() - time_of_update
             self.log_file.write("-------BREAKING NEWS: %s-------\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
             self.log_file.write("%s\n\n"%score)
-            return time.time() - time_of_update
+            self.latency_file.write("%f\n"%latency)
+            return latency
 
     def register_with_server(self):
         print self.server.register_client(self.id, self.events, self.teams)
@@ -73,7 +78,7 @@ class StoneTablet:
         # callback_server = SimpleXMLRPCServer(self.id[0], self.id[1])
         callback_server = SimpleXMLRPCServer(self.id, requestHandler=SimpleXMLRPCRequestHandler)
         callback_server.register_introspection_functions()
-        callback_server.register_instance(self.ListenerFunctions(self.log_file))
+        callback_server.register_instance(self.ListenerFunctions(self.log_file, self.latency_file))
         self.register_with_server()
         callback_server.serve_forever()
 
