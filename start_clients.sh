@@ -3,7 +3,7 @@ src_dir=.
 server_ip=localhost
 server_port=8000
 
-run_locally=True
+run_locally=True #'True' or 'False'
 
 # Number of clients for client-pull mode
 N=3

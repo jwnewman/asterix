@@ -27,7 +27,7 @@ class StoneTablet:
         # Latency measurements for client-pull architecture
         if not os.path.exists("latencies"):
             os.makedirs("latencies")
-        self.latency_file = open("latencies/pull/20/%d.txt"%port, "w+", 5)
+        self.latency_file = open("latencies/%d.txt"%port, "w+", 5)
         self.last_update = None
 
     # Methods for client-pull architecture
