@@ -5,10 +5,10 @@ server_port=8000
 
 run_locally=True
 
-# Number of clients in client-pull mode
-N=10
+# Number of clients for client-pull mode
+N=3
 arch=pull
-mode=testing
+mode=random
 
 for (( i=1; i<=$N; i++ ))
 do
@@ -17,8 +17,8 @@ do
 	echo $!
 done
 
-# Number of clients in server-push mode
-M=0
+# Number of clients for server-push mode
+M=3
 arch=push
 for (( j=1; j<=$M; j++ ))
 do
@@ -26,16 +26,4 @@ do
 	python $src_dir/StoneTablet.py --run_locally $run_locally --port $port --serip $server_ip --serport $server_port --arch $arch --mode $mode &
 	echo $!
 done
-
-# Start-up N clients in client-pull mode
-
-# for i in {1..$N}
-# do
-#    python $src_dir/StoneTablet.py &
-#    var=$!
-# done
-# python $src_dir/StoneTablet.py --ip $ip --port $port --serip $server_ip --serport $server_port --arch $arch --mode $mode --rate $pull_rate
-
-# Start-up M clients in server-push mode
-
 

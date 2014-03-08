@@ -130,7 +130,7 @@ if __name__ == "__main__":
 
     run_locally, port, server_ip, server_port, arch, mode = [x[1] for x in opts]
 
-    if str(run_locally):
+    if bool(run_locally):
         ip = "localhost"
     else:
         ip = socket.gethostbyname(socket.gethostname())
