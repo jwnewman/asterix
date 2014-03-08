@@ -8,7 +8,7 @@ run_locally=True
 # Number of clients in client-pull mode
 N=10
 arch=pull
-mode=random
+mode=testing
 
 for (( i=1; i<=$N; i++ ))
 do

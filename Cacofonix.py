@@ -15,6 +15,7 @@ EVENTS = ["Stone Curling", "Stone Skating", "Underwater Stone Weaving", "Synchro
 UNITS = ["points", "laps", "baskets", "points"]
 
 # Creates the message that is sent back to the server.
+# This message is our version of a "score".
 def create_flavor_statement(team, event, lead):
     # TODO: Make more variants
 
@@ -91,8 +92,6 @@ if __name__ == "__main__":
         sys.exit(2)
 
     port, server_ip, server_port, mode, rate = [x[1] for x in opts]
-
-    print opts
 
     if mode == "random":
         random_main(port=int(port), server_ip=server_ip, server_port=int(server_port), update_rate=int(rate))
