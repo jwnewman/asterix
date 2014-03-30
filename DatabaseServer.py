@@ -1,0 +1,66 @@
+#!/usr/bin/env python
+
+import xmlrpclib
+import SocketServer
+from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
+from threading import Thread, RLock
+import socket
+import time
+import getopt
+import os
+import sys
+from DatabaseManager import DatabaseManager
+
+class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer): pass
+
+class DBServerFunctions:
+    def __init__(self):
+       # self.uid = random.randInt(0,100)
+        self.db_mgr = DatabaseManager()
+
+    def set_score(self, event_type, score, timestamp):
+        return self.db_mgr.set_score(event_type, score, timestamp)
+
+    def get_score(self, event_type):
+        return self.db_mgr.get_score(event_type)
+
+    def increment_medal_tally(self, team_name, medal_type, timestamp):
+        return self.db_mgr.increment_medal_tally(team_name, medal_type, timestamp)
+
+    def get_medal_tally(self, team_name):
+        return self.db_mgr.get_medal_tally(team_name)
+
+
+    
+class DatabaseRPCHandler(SimpleXMLRPCRequestHandler):
+    rpc_paths = ('/RPC2',)
+
+    def do_POST(self):
+        clientIP, clientPort = self.client_address
+        print clientIP, clientPort
+        SimpleXMLRPCRequestHandler.do_POST(self)
+
+def main(ip, port=8000):
+    server = AsyncXMLRPCServer((ip, port), requestHandler=DatabaseRPCHandler)
+    server.register_introspection_functions()
+    server.register_instance(DBServerFunctions())
+    server.serve_forever() # Serve
+
+if __name__ == "__main__":
+    main("localhost", 8000) #TODO: Delete me
+   
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "", ["run_locally=","serport="])
+    except getopt.error, msg:
+        print msg
+        sys.exit(2)
+
+    run_locally, port = [x[1] for x in opts]
+    if run_locally=="True":
+        ip = "localhost"
+    else:
+        print "HOORAY"
+        ip = socket.gethostbyname(socket.gethostname())
+    print port
+    main(ip = ip, port=int(port))
+
