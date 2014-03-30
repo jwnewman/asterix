@@ -108,7 +108,7 @@ class StoneTablet:
         self.register_with_server()
         callback_server.serve_forever()
 
-def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='localhost', server_port=8000, client_pull=False, pull_rate=10):
+def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='localhost', server_port=8001, client_pull=True, pull_rate=10):
     client = StoneTablet(ip, port, server_ip, server_port, teams, events)
     try:
         # Client-pull architecture
@@ -122,36 +122,9 @@ def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='loca
         raise
 
 if __name__ == "__main__":
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "", ["run_locally=","port=","serip=","serport=","arch=","mode="])
-    except getopt.error, msg:
-        print msg
-        sys.exit(2)
 
-    run_locally, port, server_ip, server_port, arch, mode = [x[1] for x in opts]
+    main('localhost', 8002)
 
-    if run_locally=="True":
-        ip = "localhost"
-    else:
-        ip = socket.gethostbyname(socket.gethostname())
-
-    if arch.lower() == "pull".lower():
-        client_pull = True
-    elif arch.lower() == "push".lower():
-        client_pull = False
-    else:
-        raise TypeError
-
-    if mode.lower() == "random".lower():
-        num_teams = random.randint(1, len(TEAMS))
-        num_events = random.randint(1, len(EVENTS))
-        fav_teams = random.sample(TEAMS, num_teams)
-        fav_events = random.sample(EVENTS, num_events)
-    elif mode.lower() == "testing".lower():
-        fav_teams = ["Gaul"]
-        fav_events = ["Stone Curling"]
-    else:
-        raise TypeError
 
     # main(ip=ip, port=port, server_ip=server_ip, server_port=8000, teams=fav_teams, events=fav_events)
     main(ip=ip, port=int(port), teams=fav_teams, events=fav_events, server_ip=server_ip, server_port=int(server_port), client_pull=client_pull)
