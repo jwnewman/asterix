@@ -10,23 +10,12 @@ import os
 import sys
 from DatabaseManager import DatabaseManager
 from AsyncXMLRPCServer import AsyncXMLRPCServer
+from ServerFunctions import ServerFunctions
 
-class DBServerFunctions:
+class DBServerFunctions(ServerFunctions):
     def __init__(self, server):
         self.db_mgr = DatabaseManager()
-        self.server = server
-
-    def get_host(self):
-        return self.server.host
-
-    def get_id(self):
-        return self.server.get_id()
-
-    def get_leader(self):
-        return self.server.get_time_server_host()
-
-    def elect_leader(self):
-        return self.server.elect_leader()
+        ServerFunctions.__init__(self, server)
 
     def set_score(self, event_type, score, timestamp):
         return self.db_mgr.set_score(event_type, score, timestamp)
