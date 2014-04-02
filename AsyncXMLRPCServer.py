@@ -120,7 +120,6 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
             print "Not enough servers up yet"
             return "Not enough servers up yet"
         else:
-            
             return self.start_election(processes)
 
     def start_election(self, processes):
@@ -133,8 +132,11 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
                     if (ack == "I won!"):
                         self.global_time_server = server
                         self.time_server_set = True
+                        higher_active_process = True
                         print "Leader is %d"%(uid)
-                    higher_active_process = True
+                    elif (ack == "OK"):
+                        higher_active_process = True
+                        break
                 except socket.error:
                     pass
         if (higher_active_process):
