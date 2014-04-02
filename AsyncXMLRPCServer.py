@@ -128,6 +128,7 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
         for uid, server in processes.iteritems():
             if uid > self.uid:
                 try:
+                    # TODO: callback function (send back ack immediately)
                     ack = server.elect_leader()
                     print "The ack was " + ack
                     if (ack == "I won!"):
