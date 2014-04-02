@@ -3,6 +3,7 @@
 import xmlrpclib
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 from AsyncXMLRPCServer import AsyncXMLRPCServer
+from ServerFunctions import ServerFunctions
 import threading
 from ScoreKeeper import ScoreKeeper
 from Global import Global
@@ -14,24 +15,12 @@ import sys
 
 HOST_NAME = 'localhost'
 
-class ObelixServerFunctions:
+class ObelixServerFunctions(ServerFunctions):
     def __init__(self, log_file, server):
         self.keeper = ScoreKeeper()
         self.secret_id = "SECRET PASSWORD LOL HOORAY"
         self.log_file = log_file
-        self.server = server
-
-    def get_host(self):
-        return self.server.host
-
-    def get_id(self):
-        return self.server.uid
-
-    def elect_leader(self):
-        return self.server.elect_leader()
-
-    def get_leader(self):
-        return self.server.get_time_server_host()
+        ServerFunctions.__init__(self, server)
 
     def get_medal_tally(self, team_name):
         return self.keeper.get_medal_tally(team_name)
@@ -39,7 +28,7 @@ class ObelixServerFunctions:
     def increment_medal_tally(self, team_name, medal_type, password):
         if password != self.secret_id:
             return "Unauthorized entry attempt."
-        ack = self.keeper.increment_medal_tally(team_name, medal_type)
+        ack = self.keeper.increment_medal_tally(team_name, medal_type, self.get_timestamp())
         self.push_update_for_team(self.keeper.get_registered_clients_for_team(team_name), team_name)
         return ack
 
@@ -49,7 +38,7 @@ class ObelixServerFunctions:
     def set_score(self, event_type, score, password):
         if password != self.secret_id:
             return "Unauthorized entry attempt."
-        ack = self.keeper.set_score(event_type, score)
+        ack = self.keeper.set_score(event_type, score, self.get_timestamp())
         self.push_update_for_event(self.keeper.get_registered_clients_for_event(event_type), event_type)
         return ack
 
@@ -113,7 +102,7 @@ def main(ip, port=8001):
         server.handle_request()
 
 if __name__ == "__main__":
-    main('localhost', 8002)
+    main('localhost', 8001)
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", ["run_locally=","serport="])

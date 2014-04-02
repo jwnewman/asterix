@@ -110,7 +110,9 @@ class StoneTablet:
 
 def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='localhost', server_port=8001, client_pull=True, pull_rate=10):
     client = StoneTablet(ip, port, server_ip, server_port, teams, events)
-    try:
+
+    print client.server.get_medal_tally("Gaul")
+    """try:
         # Client-pull architecture
         while(client_pull):
             client.pull()
@@ -119,7 +121,7 @@ def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='loca
         # Server-push architecture
         client.serve()
     except KeyboardInterrupt:
-        raise
+        raise"""
 
 if __name__ == "__main__":
 
@@ -127,7 +129,7 @@ if __name__ == "__main__":
 
 
     # main(ip=ip, port=port, server_ip=server_ip, server_port=8000, teams=fav_teams, events=fav_events)
-    main(ip=ip, port=int(port), teams=fav_teams, events=fav_events, server_ip=server_ip, server_port=int(server_port), client_pull=client_pull)
+    #main(ip=ip, port=int(port), teams=fav_teams, events=fav_events, server_ip=server_ip, server_port=int(server_port), client_pull=client_pull)
 
 
 

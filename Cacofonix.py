@@ -64,9 +64,11 @@ def random_main(port=8001, server_ip='localhost', server_port=8000, update_rate=
             raise
 
 
-def test_main(port=8001, server_ip='localhost', server_port=8000, update_rate=1):
+def test_main(port=8003, server_ip='localhost', server_port=8001, update_rate=1):
     fonix = Cacofonix(port = port, server_ip = server_ip, server_port = server_port)
-    while(True):
+
+    fonix.increment_medal_tally("Gaul", "gold")
+    """while(True):
         try:
             # rn.seed(10)
             time.sleep(update_rate)
@@ -82,10 +84,12 @@ def test_main(port=8001, server_ip='localhost', server_port=8000, update_rate=1)
             fonix.increment_medal_tally("Gaul", "gold")
             
         except (KeyboardInterrupt):
-            break
+            break"""
 
 if __name__ == "__main__":
-    try:
+    test_main()
+
+    """try:
         opts, args = getopt.getopt(sys.argv[1:], "", ["port=", "serip=","serport=","mode=", "rate="])
     except getopt.error, msg:
         print msg
@@ -98,7 +102,7 @@ if __name__ == "__main__":
     elif mode == "testing":
         test_main(port=int(port), server_ip=server_ip, server_port=int(server_port), update_rate=int(rate))
     else:
-        raise TypeError
+        raise TypeError"""
 
     
 
