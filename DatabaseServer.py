@@ -1,22 +1,32 @@
 #!/usr/bin/env python
 
 import xmlrpclib
-import SocketServer
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
-from threading import Thread, RLock
+import threading
 import socket
 import time
 import getopt
 import os
 import sys
 from DatabaseManager import DatabaseManager
-
-class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer): pass
+from AsyncXMLRPCServer import AsyncXMLRPCServer
 
 class DBServerFunctions:
-    def __init__(self):
-       # self.uid = random.randInt(0,100)
+    def __init__(self, server):
         self.db_mgr = DatabaseManager()
+        self.server = server
+
+    def get_host(self):
+        return self.server.host
+
+    def get_id(self):
+        return self.server.get_id()
+
+    def get_leader(self):
+        return self.server.get_time_server_host()
+
+    def elect_leader(self):
+        return self.server.elect_leader()
 
     def set_score(self, event_type, score, timestamp):
         return self.db_mgr.set_score(event_type, score, timestamp)
@@ -41,10 +51,14 @@ class DatabaseRPCHandler(SimpleXMLRPCRequestHandler):
         SimpleXMLRPCRequestHandler.do_POST(self)
 
 def main(ip, port=8000):
-    server = AsyncXMLRPCServer((ip, port), requestHandler=DatabaseRPCHandler)
+    hosts = [('localhost', 8000), ('localhost', 8001), ('localhost', 8002)] # Fix this... this is simply the hosts of all the three servers
+    server = AsyncXMLRPCServer((ip, port), DatabaseRPCHandler, hosts)
     server.register_introspection_functions()
-    server.register_instance(DBServerFunctions())
-    server.serve_forever() # Serve
+    server.register_instance(DBServerFunctions(server))
+    threading.Timer(10, server.check_time_server).start()
+    while(1):
+        server.handle_request()
+        
 
 if __name__ == "__main__":
     main("localhost", 8000) #TODO: Delete me

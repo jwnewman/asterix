@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 import xmlrpclib
-import SocketServer
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
-from threading import Thread, RLock
+from AsyncXMLRPCServer import AsyncXMLRPCServer
+import threading
 from ScoreKeeper import ScoreKeeper
 from Global import Global
 import socket
@@ -11,17 +11,27 @@ import time
 import getopt
 import os
 import sys
-import random
 
 HOST_NAME = 'localhost'
 
-class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer): pass
-
 class ObelixServerFunctions:
-    def __init__(self, log_file):
+    def __init__(self, log_file, server):
         self.keeper = ScoreKeeper()
         self.secret_id = "SECRET PASSWORD LOL HOORAY"
         self.log_file = log_file
+        self.server = server
+
+    def get_host(self):
+        return self.server.host
+
+    def get_id(self):
+        return self.server.uid
+
+    def elect_leader(self):
+        return self.server.elect_leader()
+
+    def get_leader(self):
+        return self.server.get_time_server_host()
 
     def get_medal_tally(self, team_name):
         return self.keeper.get_medal_tally(team_name)
@@ -94,13 +104,16 @@ class ObelixRPCHandler(SimpleXMLRPCRequestHandler):
 
 def main(ip, port=8001):
     log_file = open("log_server.txt", "w+", 5)
-    server = AsyncXMLRPCServer((ip, port), requestHandler=ObelixRPCHandler)
+    hosts = [('localhost', 8000), ('localhost', 8001), ('localhost', 8002)] # Fix this... this is simply the hosts of all the three servers
+    server = AsyncXMLRPCServer((ip, port), ObelixRPCHandler, hosts)
     server.register_introspection_functions()
-    server.register_instance(ObelixServerFunctions(log_file))
-    server.serve_forever()
+    server.register_instance(ObelixServerFunctions(log_file, server))
+    threading.Timer(10, server.check_time_server).start()
+    while(1):
+        server.handle_request()
 
 if __name__ == "__main__":
-    main('localhost', 8001)
+    main('localhost', 8002)
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", ["run_locally=","serport="])
