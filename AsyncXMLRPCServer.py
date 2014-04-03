@@ -5,16 +5,19 @@ import SocketServer
 import random
 import xmlrpclib
 import datetime
+import numpy as np
 
 class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
-    def __init__(self, host, request_handler, hosts):
-        self.uid = random.randint(0,100)
+    def __init__(self, host, request_handler, hosts, uid):
+        assert uid < len(hosts)
+        self.uid = uid
         self.offset = 0
         self.host = host
         self.hosts = hosts
         self.time_server_set = False
         self.global_time_server = None
         self.am_leader = False
+        self.vector_clock = np.zeros([len(hosts)])
         SimpleXMLRPCServer.__init__(self, host, request_handler)
 
     def get_offset(self):
