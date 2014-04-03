@@ -91,7 +91,7 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
     def time_server_not_responding(self):
         print "Checking if the time server is responding."
         if not self.time_server_set or self.am_leader:
-            print "No time server yet."
+            print "No time server yet or I am leader."
             return False
         try:
             uid = self.global_time_server.get_id()
@@ -137,11 +137,9 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
                     if (ack == "I won!"):
                         self.global_time_server = server
                         self.time_server_set = True
-                        higher_active_process = True
                         print "Leader is %d"%(uid)
-                    elif (ack == "OK"):
-                        higher_active_process = True
-                        break
+                    higher_active_process = True
+                    break
                 except socket.error:
                     pass
         if (higher_active_process):
@@ -157,7 +155,6 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
         processes = self.get_processes()
         if (len(processes) < 1):
             print "Not enough servers up yet"
-            return "Not enough servers up yet"
         times = []
         servers = []
         time = datetime.datetime.now().time()
