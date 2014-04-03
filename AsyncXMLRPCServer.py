@@ -29,9 +29,13 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
     def check_time_server(self):
         ack = self.check_server_activity()
         if self.am_leader:
-            threading.Timer(30, self.set_offset_for_processes).start()
+            t = threading.Timer(30, self.set_offset_for_processes)
+            t.daemon = True
+            t.start()
         else:
-            threading.Timer(60, self.check_time_server).start()
+            t = threading.Timer(60, self.check_time_server)
+            t.daemon = True
+            t.start()
         return ack
 
     def get_time_server_host(self):
@@ -170,6 +174,8 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
         times.pop(0)
         for i in range(len(servers)):
             servers[i].set_offset(average - times[i])
-        threading.Timer(30, self.set_offset_for_processes).start()
+        t = threading.Timer(30, self.set_offset_for_processes)
+        t.daemon = True
+        t.start()
         return
 
