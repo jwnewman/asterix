@@ -44,9 +44,10 @@ def main(ip, port=8000):
     server = AsyncXMLRPCServer((ip, port), DatabaseRPCHandler, hosts)
     server.register_introspection_functions()
     server.register_instance(DBServerFunctions(server))
-    threading.Timer(10, server.check_time_server).start()
-    while(1):
-        server.handle_request()
+    t = threading.Timer(10, server.check_time_server)
+    t.daemon = True
+    t.start()
+    server.serve_forever()
         
 
 if __name__ == "__main__":

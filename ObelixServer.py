@@ -97,9 +97,10 @@ def main(ip, port=8001):
     server = AsyncXMLRPCServer((ip, port), ObelixRPCHandler, hosts)
     server.register_introspection_functions()
     server.register_instance(ObelixServerFunctions(log_file, server))
-    threading.Timer(10, server.check_time_server).start()
-    while(1):
-        server.handle_request()
+    t = threading.Timer(10, server.check_time_server)
+    t.daemon = True
+    t.start()
+    server.serve_forever()
 
 if __name__ == "__main__":
     main('localhost', 8001)
