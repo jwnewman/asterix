@@ -4,21 +4,8 @@ import socket
 import SocketServer
 import random
 import xmlrpclib
-import datetime
-# from Synchronized import synchronized, synchronized_check
-
-
-# def synchronized(lock):
-#     def wrap(f):
-#         def newFunction(*args, **kw):
-#             lock.acquire()
-#             try:
-#                 return f(*args, **kw)
-#             finally:
-#                 lock.release()
-#         return newFunction
-#     return wrap
-
+# import datetime
+import time
 class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
     def __init__(self, uid, request_handler, hosts):
         assert uid < len(hosts)
@@ -60,7 +47,6 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
         with self.clock_lock:
             self.vector_clock[self.uid] += 1
 
-    # @synchronized(self.clock_lock)
     def synch_vector_clocks(self, vector_clock_str):
         vector_clock = self.vector_clock_from_string(vector_clock_str)
         with self.clock_lock:
@@ -115,9 +101,6 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
                     processes[uid] = server
             except socket.error:
                 pass
-        print "*************"
-        print processes
-        print "*************"
         return processes
 
     def am_leader(self):
@@ -202,24 +185,19 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
 
     def set_offset_for_processes(self):
         processes = self.get_processes()
-        if (len(processes) < 1):
+        if (len(processes) == 0):
             print "Not enough servers up yet"
-        times = []
-        servers = []
-        time = datetime.datetime.now().time()
-        secs = (time.hour * 3600) + (time.minute * 60) + time.second
-        times.append(secs)
-        average = secs
-        for server in processes.itervalues():
-            servers.append(server)
-            server_local_time = server.get_time_in_seconds()
-            times.append(server_local_time)
-            average += server_local_time
-        average = float(average) / len(times)
-        self.offset = average - secs
-        times.pop(0)
-        for i in range(len(servers)):
-            servers[i].set_offset(average - times[i])
+            return 
+        servers = list(processes.itervalues())
+
+        local_time = time.time()
+        times = [server.get_time_in_seconds() for server in servers]
+        avg_time = (sum(times) + local_time)/(len(times) + 1.0)
+
+        self.offset = avg_time - local_time
+        for s, t in zip(servers, times):
+            s.set_offset(avg_time - t)
+        
         t = Timer(5, self.set_offset_for_processes)
         t.daemon = True
         t.start()

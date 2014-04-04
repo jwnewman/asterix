@@ -1,8 +1,14 @@
+"""Module for synchronization decorators used for locking."""
+
 from threading import Thread, RLock, Event
 
-# This wrapper wraps around functions that actually acquire locks. Any function that modifies data will acquire a lock so that no two threads
-# can enter this function at once.
 def synchronized(lock):
+    """@synchronized is a decorator for functions that acquires a locks. 
+    Any function modifying shared data is decorated to make it thread-safe.
+
+    Arguments:
+    lock -- A threading.Lock object.
+    """
     def wrap(f):
         def newFunction(*args, **kw):
             lock.acquire()
@@ -13,9 +19,13 @@ def synchronized(lock):
         return newFunction
     return wrap
 
-# This wrapper wraps around functions that must simply wait until a lock is released. The reason for having two different functions is that
-# we want methods like get_medal_tally to be able to be accessed asynchronously, UNLESS data modification is happening. This prevents inconsistency.
 def synchronized_check(lock):
+    """@synchronized_check is a decorator for functions that have to wait for lock releases.
+    This is separate from @synchronized because somemethods shouldn't have to wait on eachother (e.g., get_medal_tally).
+    
+    Arguments:
+    lock -- A threading.Lock object.
+    """
     def wrap(f):
         def newFunction(*args, **kw):
             while(lock.locked()):

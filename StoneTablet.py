@@ -1,3 +1,5 @@
+"""Module for the StoneTable class."""
+
 import xmlrpclib
 import socket
 import time
@@ -10,39 +12,60 @@ import os
 TEAMS = ["Gaul", "Rome", "Carthage", "Greece", "Persia"]
 EVENTS = ["Stone Curling", "Stone Skating", "Underwater Stone Weaving", "Synchronized Stone Swimming"]
 
-# StoneTablet is the app that clients will run on their SmartStones. Each client can parameterize their StoneTablet with a list of teams and events of interest.
-# If no parameters are provided, these will be selected randomly. The client also measures the latency from the server in receiving their request.
 
 class StoneTablet:
+    """StoneTablet is the app that clients run on their SmartStones.
+
+    StoneTablet supports both server-push and client-pull mode.
+    Server-push mode has been deprecated for Lab #2.
+
+    Arguments:
+    ip -- String for StoneTablets's IP address.
+    port -- Int for StoneTablet's port.
+    server_ip -- String for IP address for the Pygmy.com server.
+    server_port -- Int for Port for the Pygmy.com server.
+    teams -- List of team names to register for pull or push updates.
+    events -- List of events to register for pull or push updates.
+    """
     def __init__(self, ip, port, server_ip, server_port, teams=[], events=[]):
         self.id = (ip, port)
         self.str_id = "%s:%d"%self.id
         self.teams = teams
         self.events = events
-        # print "%s:%d"%(server_ip, server_port)
         self.server = xmlrpclib.ServerProxy("http://%s:%d"%(server_ip, server_port))
-        # Log file for output statements
+        # -----------------------------------------------------------
+        # Below are logging and latency vars (deprecated for Lab #2).
+        # -----------------------------------------------------------
         if not os.path.exists("client_logs"):
             os.makedirs("client_logs")
         self.log_file = open("client_logs/%d.txt"%port, "w+", 5)
-        # Latency measurements for client-pull architecture
+
         if not os.path.exists("latencies"):
             os.makedirs("latencies")
         self.latency_file = open("latencies/%d.txt"%port, "w+", 5)
         self.last_update = None
-
-    # Methods for client-pull architecture
     
-    # This function polls the server for the most recent medal_tally for the provided team.
-    def get_medal_tally(self, team):
-        return self.server.get_medal_tally(team, self.str_id)
+    def get_medal_tally(self, team_name):
+        """Returns the current medal tally for a given team via RPC to Pygmy.com.
 
-    # This function polls the server for the most recent score for the provided event.
-    def get_score(self, event):
-        return self.server.get_score(event, self.str_id)
+        Arguments:
+        team_name -- String for one of the Olympic teams.
+        """
+        return self.server.get_medal_tally(team_name, self.str_id)
 
-    # Polls the server for all of the latest scores and tallies for the events and teams that the StoneTablet follows.
+    def get_score(self, event_type):
+        """Returns the current score for a given event via RPC to Pygmy.com.
+
+        Arguments:
+        event_type -- String for one of the Olympic events.
+        """
+        return self.server.get_score(event_type, self.str_id)
+
     def pull(self):
+        """Performs a client-pull for updates on all of the teams and events the client follows.
+
+        Prints all updates to the console and also writes them to a log.        
+        """
         if self.last_update is None:
             self.log_file.write("\nLoading data...\n\n")
         else:
@@ -51,7 +74,7 @@ class StoneTablet:
         for team in self.teams:
             request_time = time.time()
             medal_update = self.get_medal_tally(team)
-            # print medal_update
+            print medal_update
             self.log_file.write("%s\n"%medal_update)
             latency=time.time() - request_time
             self.latency_file.write("%f\n"%latency)
@@ -59,43 +82,57 @@ class StoneTablet:
         for event in self.events:
             request_time = time.time()
             score_update = self.get_score(event)
-            # print score_update
+            print score_update
             self.log_file.write("%s\n"%score_update)
             latency=time.time() - request_time
             self.latency_file.write("%f\n"%latency)
         self.last_update = time.strftime("%d %b %Y %H:%M:%S", time.gmtime())
 
-    # Methods for server-push architecture
+# --------------------------------------------------------------------
+# All functions below are for server-push mode (deprecated for Lab #2).
+# --------------------------------------------------------------------
 
-    # RPC interface for the server to call in server-push mode.
     class ListenerFunctions:
+        """RPC interface for the server to call in server-push mode.
+
+        Deprecated for Lab #2.
+
+        Arguments:
+        log_file -- Opened file for logging updates. 
+        latency_file -- Opened file for logging latecies.
+        """
         def __init__(self, log_file, latency_file):
             self.log_file = log_file
             self.latency_file = latency_file
-        # Receives a medal tally from the server and displays it
+
         def print_medal_tally_for_team(self, medal_tally, time_of_update):
-            # print medal_tally
+            """Prints and logs medal update from server."""
+            print medal_tally
             latency = time.time() - time_of_update
             self.log_file.write("-------BREAKING NEWS: %s-------\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
             self.log_file.write("%s\n\n"%medal_tally)
             self.latency_file.write("%f\n"%latency)
             return latency
-        # Recieves a score from the server and displays it.
+
         def print_score_for_event(self, score, time_of_update):
-            # print score
+            """Prints and logs score update from server."""
+            print score
             latency = time.time() - time_of_update
             self.log_file.write("-------BREAKING NEWS: %s-------\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
             self.log_file.write("%s\n\n"%score)
             self.latency_file.write("%f\n"%latency)
             return latency
 
-    # Sends information to the server about this client so that it can be registered for teams and events of interest.
     def register_with_server(self):
-        # print self.server.register_client(self.id, self.events, self.teams)
+        """Registers events and teams the client follows with server for server-push updates."""
+        print self.server.register_client(self.id, self.events, self.teams)
         self.server.register_client(self.id, self.events, self.teams)
 
-    # Server push mode: Registers with the server and then listens for updates from the server.
     def serve(self):
+        """Serves for server-push mode.
+
+        Registers with servers and listens for updates. 
+        """
         available_port = False
         while (not available_port):
             try:

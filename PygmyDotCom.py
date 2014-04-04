@@ -1,5 +1,9 @@
 #!/usr/bin/env python
+"""Module for all of the classes involved in implementing Pygmy.com.
 
+The main class is PygmyServerFunctions which implements PygmyServer's functionality.
+PygmyServer is just another AsyncXMLRPCServer.
+"""
 import xmlrpclib
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 from AsyncXMLRPCServer import AsyncXMLRPCServer
@@ -13,38 +17,24 @@ import time
 import getopt
 import os
 import sys
-import numpy as np
 import random
 import types
 from Synchronized import synchronized, synchronized_check
 
 COUNTER_LOCK = Lock()
 
-# def synchronized(lock):
-#     def wrap(f):
-#         def newFunction(*args, **kw):
-#             lock.acquire()
-#             try:
-#                 return f(*args, **kw)
-#             finally:
-#                 lock.release()
-#         return newFunction
-#     return wrap
-
-class PygmyServer(SocketServer.ThreadingMixIn, SimpleXMLRPCServer): pass
-
-class PygmyRPCHandler(SimpleXMLRPCRequestHandler):
-    rpc_paths = ('/RPC2',)
-
-    def do_POST(self):
-        clientIP, clientPort = self.client_address
-        print clientIP, clientPort
-        SimpleXMLRPCRequestHandler.do_POST(self)
-
 class PygmyServerFunctions:
+	"""PygmyServer is the middleman between clients and the two frontend servers.
+
+	It implements a simple load-balancing scheme to spread requests between the frontends.
+
+	Arguments:
+	db -- (ip, host) tuple which is the address of the database server.
+	frontends -- list of (ip, host) tuples which are the addresses of the frontends. 
+	"""
 	def __init__(self, db, frontends):
-		self.db = db # tuple of (ip, host)
-		self.frontends = frontends # list of tuples of (ip, host)
+		self.db = db
+		self.frontends = frontends
 		self.event_count = 0 # strictly for testing
 
 	@synchronized(COUNTER_LOCK)
@@ -53,6 +43,10 @@ class PygmyServerFunctions:
 		self.event_count += 1
 
 	def get_active_servers(self):
+		"""Returns a list of connections to available frontend servers.
+
+		If no servers are available, an empty list is returned.
+		"""
 		servers = []
 		for ip, port in self.frontends:
 			try:
@@ -63,10 +57,25 @@ class PygmyServerFunctions:
 		return servers
 
 	def load_balance(self):
+		"""Simple load-balancing scheme:
+		Returns an available server uniformly at random.
+
+		If no servers are available, returns None.
+		"""
 		servers = self.get_active_servers()
 		return random.choice(servers) if servers else None
 
 	def get_medal_tally(self, team_name, client_id):
+		"""Returns the current medal tally for a given team via RPC to one of the frontend servers.
+
+		Calls load_balance to get one of the available frontends randomly.
+
+		Always called by a requesting client.
+
+		Arguments:
+		team_name -- String for one of the Olympic teams.
+		client_id -- Unique string ID of the requesting client (used for raffle).
+		"""
 		self.increment_counter()
 		server = self.load_balance()
 		if type(server) is not types.NoneType:
@@ -75,6 +84,17 @@ class PygmyServerFunctions:
 			return "Error 1928391 -- Sorry I'm not sorry"
 
 	def increment_medal_tally(self, team_name, medal_type, password):
+        """Increments the medal tally for a given team via RPC to one of the frontend servers.
+
+        Calls load_balance to get one of the available frontends randomly.
+
+        Always called by Cacofonix.
+
+        Arguments:
+        team_name -- String for one of the Olympic teams.
+        medal_type -- String for the type of medal to increment.
+        password -- Unique password only known by Cacofonix (hopefully).
+        """
 		server = self.load_balance()
 		if type(server) is not types.NoneType:
 			return server.increment_medal_tally(team_name, medal_type, password)
@@ -82,6 +102,16 @@ class PygmyServerFunctions:
 			return "Error 1928391 -- Sorry I'm not sorry"
 
 	def get_score(self, event_type, client_id):
+		"""Returns the current score for a given event via RPC to one of the frontend servers.
+
+		Calls load_balance to get one of the available frontends randomly.
+
+		Always called by a requesting client.
+
+		Arguments:
+		event_type -- String for one of the Olympic events.
+		client_id -- Unique string ID of the requesting client (used for raffle).
+		"""
 		self.increment_counter()
 		server = self.load_balance()
 		if type(server) is not types.NoneType:
@@ -90,11 +120,32 @@ class PygmyServerFunctions:
 			return "Error 1928391 -- Sorry I'm not sorry"
 
 	def set_score(self, event_type, score, password):
+        """Sets the score for a given event via RPC to one of the frontend servers.
+
+        Calls load_balance to get one of the available frontends randomly.
+
+        Always called by Cacofonix.
+
+        Arguments:
+        event_type -- String for one of the Olympic events.
+        score -- String for the updated score.
+        password -- Unique password only known by Cacofonix (hopefully).
+        """
 		server = self.load_balance()
 		if type(server) is not types.NoneType:
 			server.set_score(event_type, score, password)
 		else:
 			return "Error 1928391 -- Sorry I'm not sorry"
+
+class PygmyServer(SocketServer.ThreadingMixIn, SimpleXMLRPCServer): pass
+
+class PygmyRPCHandler(SimpleXMLRPCRequestHandler):
+    rpc_paths = ('/RPC2',)
+
+    def do_POST(self):
+        clientIP, clientPort = self.client_address
+        print clientIP, clientPort
+        SimpleXMLRPCRequestHandler.do_POST(self)
 
 def main(ip, port=8001):
 	db = ('localhost', 8000)

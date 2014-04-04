@@ -1,3 +1,5 @@
+"""Module for ScoreKeeper class."""
+
 import xmlrpclib
 import socket
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
@@ -5,14 +7,19 @@ from Team import Team
 from OlympicEvent import OlympicEvent
 import datetime
 
-# This class serves as an intermediary between the server that communicates with remote clients, and the data backends (Team and OlympicEvent.)
-# This class also takes care of error handling and synchronization.
-
 TEAMS = ["Gaul", "Rome", "Carthage", "Greece", "Persia"]
 MEDALS = ["gold", "silver", "bronze"]
 EVENTS = ["Stone Curling", "Stone Skating", "Underwater Stone Weaving", "Synchronized Stone Swimming"]
 
 class ScoreKeeper:
+    """ScoreKeeper is an intermediary between the client-facing server and the data backend.
+
+    ScoreKeeper supports both server-push and client-pull mode.  
+    Server-push mode has been deprecated for Lab #2.
+
+    Arguments:
+    db -- (ip, host) tuple which is the address of the database server.
+    """
     def __init__(self, db):
         self.events = {}
         self.teams = {}
@@ -23,28 +30,70 @@ class ScoreKeeper:
         self.db = db
         self.db_server = xmlrpclib.ServerProxy("http://%s:%d"%db)
 
+    # ----------------------------------------------
+    # All functions below are for client-pull mode.
+    # ----------------------------------------------
+
     def get_medal_tally(self, team_name, client_id, vector_clock_str):
+        """Returns the current medal tally for a given team via RPC to the DB Server.
+
+        Always called by one of the frontend servers on behalf of a requesting client.
+
+        Arguments:
+        team_name -- String for one of the Olympic teams.
+        client_id -- Unique string ID of the initial requesting client (used for raffle).
+        vector_clock_str -- String representation of the vector clock of the frontend server.
+        """
         if team_name.lower() not in [t.lower() for t in TEAMS]:
             return "Error 8483 -- unrecognized team name:\n\t%s"%team_name
         return self.db_server.get_medal_tally(team_name, client_id, vector_clock_str)
-        # return self.db_server.get_medal_tally(team_name, client_id, vector_clock_str)
 
     def increment_medal_tally(self, team_name, medal_type, timestamp):
+        """Increments the medal tally for a given team via RPC to the DB Server.
+
+        Always called by one of the frontend servers on behalf of a Cacofonix update.
+
+        Arguments:
+        team_name -- String for one of the Olympic teams.
+        medal_type -- String for the type of medal to increment.
+        timestamp -- Time of the update.
+        """
         if medal_type.lower() not in [m.lower() for m in MEDALS]:
             return "Error 15010 -- unrecognized medal metal:\n\t%s"%medal_type
         return self.db_server.increment_medal_tally(team_name, medal_type, timestamp)
 
     def get_score(self, event_type, client_id, vector_clock_str):
+        """Returns the current score for a given event via RPC to the DB Server.
+
+        Always called by one of the frontend servers on behalf of a requesting client.
+
+        Arguments:
+        event_type -- String for one of the Olympic events.
+        client_id -- Unique string ID of the initial requesting client (used for raffle).
+        vector_clock_str -- String representation of the vector clock of the frontend server.
+        """
         if event_type.lower() not in [e.lower() for e in EVENTS]:
             return "Error 28734 -- unrecognized event type:\n\t%s"%event_type
         return self.db_server.get_score(event_type, client_id, vector_clock_str)
 
     def set_score(self, event_type, score, timestamp):
+        """Sets the score for a given event via RPC to the DB Server.
+
+        Always called by one of the frontend servers on behalf of a Cacofonix update.
+
+        Arguments:
+        event_type -- String for one of the Olympic events.
+        score -- String for the updated score.
+        timestamp -- Time of the update.
+        """
         if event_type.lower() not in [e.lower() for e in EVENTS]:
             return "Error 5 -- unrecognized event type:\n\t%s"%event_type
         return self.db_server.set_score(event_type, score, timestamp)
 
-# All functions below deprecated
+# --------------------------------------------------------------------
+# All functions below are for server-push mode (deprecated for Lab #2).
+# --------------------------------------------------------------------
+
     def register_client(self, client_id, events, teams):
         if len(client_id) != 2:
             return "Error 39484 -- invalid client id"
