@@ -1,4 +1,6 @@
-"""Module for AsyncXMLRPCServer class."""
+"""Module for AsyncXMLRPCServer class.  
+
+Includes main methods for vector clocks."""
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 from threading import Lock, Timer
@@ -7,6 +9,35 @@ import SocketServer
 import random
 import xmlrpclib
 import time
+
+def vector_clock_to_string(vector_clock):
+    """ Returns string representation of instance's vector clock.
+
+    Example usage:
+    >>> vector_clock_to_string([1, 10, 12, 4])
+    '1 10 12 4'
+    """
+    return " ".join(map(str, vector_clock))
+
+def vector_clock_from_string(vector_clock_str):
+    """Returns list representation of a vector clock string.
+
+    Example usage:
+    >>> vector_clock_from_string('1 10 12 4')
+    [1, 10, 12, 4]
+    """
+    return map(int, vector_clock_str.split())
+
+def sync_vector_clocks(vector_clock_1, vector_clock_2):
+    """Returns sync of two vector clocks.
+
+    Synced vector clock is the max along each index of both.
+
+    Arguments:
+    vector_clock_1 -- List representation of first vector clock to sync.
+    vector_clock_2 -- List representation of second vector clock to sync.
+    """
+    return [max(i,j) for i,j in zip(vector_clock_1, vector_clock_2)]
 
 class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
     """Basic server class that front- and back-end servers inherit from.
@@ -32,34 +63,15 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
 
         SimpleXMLRPCServer.__init__(self, self.host, request_handler)
 
-    def vector_clock_to_string(self):
-        """ Returns string representation of instance's vector clock.
-
-        Example usage:
-        >>> a = AsyncXMLRPCServer(0, SimpleXMLRPCRequestHandler, [None])
-        >>> a.vector_clock = [1, 10, 12, 4]
-        >>> a.vector_clock_to_string()
-        '1 10 12 4'
-        """
-        return " ".join(map(str, self.vector_clock))
-
-    def vector_clock_from_string(self, vector_clock_str):
-        """Returns list representation of a vector clock string.
-
-        Example usage:
-        >>> a = AsyncXMLRPCServer(0, SimpleXMLRPCRequestHandler, [None])
-        >>> a.vector_clock = [1, 10, 12, 4]
-        >>> a.vector_clock_from_string('1 10 12 4')
-        [1, 10, 12, 4]
-        """
-        return map(int, vector_clock_str.split())
+    def vector_clock_string(self):
+        return vector_clock_to_string(self.vector_clock)
 
     def increment_event_count(self):
         """Locks on vector clock and increments local event count by 1."""
         with self.clock_lock:
             self.vector_clock[self.uid] += 1
 
-    def sync_vector_clocks(self, vector_clock_str):
+    def sync_with_vector_clock(self, vector_clock_str):
         """Syncs vector clock with given vector clock.
 
         Synced vector clock is the max of each index in each.
@@ -67,10 +79,11 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
         Arguments:
         vector_clock_str -- String representation of vector clock to sync with.
         """
-        vector_clock = self.vector_clock_from_string(vector_clock_str)
+        vector_clock = vector_clock_from_string(vector_clock_str)
         with self.clock_lock:
-            self.vector_clock = [max(i,j) for i,j in zip(self.vector_clock, vector_clock)]
-        return self.vector_clock_to_string()
+            self.vector_clock = sync_vector_clocks(vector_clock, self.vector_clock)
+            synced_clock_str = vector_clock_to_string(self.vector_clock)
+        return synced_clock_str
 
     def get_offset(self):
         """Returns current time offset: fraction of secs (float)."""
@@ -243,3 +256,6 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
         t.start()
         return
 
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod(verbose=True)

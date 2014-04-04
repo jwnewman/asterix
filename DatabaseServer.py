@@ -47,7 +47,7 @@ class DBServerFunctions(ServerFunctions):
         client_id -- Unique string ID of the initial requesting client (used for raffle).
         vector_clock_str -- String representation of the vector clock of the frontend server.
         """
-        synched_clock_str = self.server.sync_vector_clocks(vector_clock_str)
+        synched_clock_str = self.server.sync_with_vector_clock(vector_clock_str)
         self.db_mgr.check_raffle(client_id, synched_clock_str)
         return synched_clock_str, self.db_mgr.get_score(event_type)
 
@@ -75,7 +75,7 @@ class DBServerFunctions(ServerFunctions):
         client_id -- Unique string ID of the initial requesting client (used for raffle).
         vector_clock_str -- String representation of the vector clock of the frontend server.
         """
-        synched_clock_str = self.server.sync_vector_clocks(vector_clock_str)
+        synched_clock_str = self.server.sync_with_vector_clock(vector_clock_str)
         self.db_mgr.check_raffle(client_id, synched_clock_str)
         return synched_clock_str, self.db_mgr.get_medal_tally(team_name)
     
@@ -119,21 +119,4 @@ if __name__ == "__main__":
     else:
         ip = socket.gethostbyname(socket.gethostname())
     main(ip=ip, port=port, uid=uid)
-
-# if __name__ == "__main__":
-#     main("localhost", 8000, 0) #TODO: Delete me
-   
-#     try:
-#         opts, args = getopt.getopt(sys.argv[1:], "", ["run_locally=","serport="])
-#     except getopt.error, msg:
-#         print msg
-#         sys.exit(2)
-
-#     run_locally, port = [x[1] for x in opts]
-#     if run_locally=="True":
-#         ip = "localhost"
-#     else:
-#         ip = socket.gethostbyname(socket.gethostname())
-#     print port
-#     main(ip = ip, port=int(port))
 

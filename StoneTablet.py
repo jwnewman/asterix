@@ -188,12 +188,3 @@ if __name__ == "__main__":
     fav_events = list(set([random.choice(EVENTS) for x in xrange(3)]))
     fav_events = [x.lower() for x in fav_events]
     main(ip=ip, port=port, server_ip=server_ip, server_port=server_port, teams=fav_teams, events=fav_events)
-
-        
-
-
-
-
-
-
-

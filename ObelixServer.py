@@ -45,8 +45,8 @@ class ObelixServerFunctions(ServerFunctions):
         client_id -- Unique string ID of the initial requesting client (used for raffle).
         """
         self.server.increment_event_count()
-        vector_clock_str, medal_tally = self.keeper.get_medal_tally(team_name, client_id, self.server.vector_clock_to_string())
-        self.server.sync_vector_clocks(vector_clock_str)
+        vector_clock_str, medal_tally = self.keeper.get_medal_tally(team_name, client_id, self.server.vector_clock_string())
+        self.server.sync_with_vector_clock(vector_clock_str)
         return medal_tally
 
     def increment_medal_tally(self, team_name, medal_type, password):
@@ -81,8 +81,8 @@ class ObelixServerFunctions(ServerFunctions):
         client_id -- Unique string ID of the requesting client (used for raffle).
         """
         self.server.increment_event_count()
-        vector_clock_str, score = self.keeper.get_score(event_type, client_id, self.server.vector_clock_to_string())
-        self.server.sync_vector_clocks(vector_clock_str)
+        vector_clock_str, score = self.keeper.get_score(event_type, client_id, self.server.vector_clock_string())
+        self.server.sync_with_vector_clock(vector_clock_str)
         return score
 
     def set_score(self, event_type, score, password):

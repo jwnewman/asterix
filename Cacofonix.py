@@ -74,13 +74,11 @@ def main(port=8004, server_ip='localhost', server_port=8000, update_rate=5):
     while(True):
         try:
             time.sleep(random.random()*update_rate)
-
             event = random.randint(0, len(EVENTS)-1)
             team = random.randint(0, len(TEAMS)-1)
             lead = random.randint(1, 100)
             score = create_flavor_statement(team, event, lead)
 
-            print EVENTS[event].lower()
             fonix.set_score(EVENTS[event].lower(), score)
 
             if random.random() > 0.5:
