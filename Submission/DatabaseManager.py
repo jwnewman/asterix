@@ -79,7 +79,6 @@ class DatabaseManager:
             self.cur.execute("SELECT * FROM Teams WHERE Name=?", (team_name,))
             data = self.cur.fetchone()
             if (data is None):
-                print "Enter"
                 self.insert_team_into_db(team_name)
             if (medal_type == 'gold'):
                 self.cur.execute("UPDATE Teams SET Gold_Medals=Gold_Medals+1, Timestamp=? WHERE Name=?", (timestamp, team_name))
