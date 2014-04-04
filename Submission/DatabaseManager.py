@@ -31,7 +31,7 @@ class DatabaseManager:
     def check_raffle(self, client_id, vector_clock_str):
         print vector_clock_str
         vector_clock = map(int, vector_clock_str.split())
-        if sum(vector_clock)%10==0:
+        if sum(vector_clock)%100==0:
             print self.enter_raffle_contestant(client_id, sum(vector_clock))
 
     @synchronized(Global.raffle_lock)
