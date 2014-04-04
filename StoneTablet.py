@@ -33,6 +33,7 @@ class StoneTablet:
         self.teams = teams
         self.events = events
         self.server = xmlrpclib.ServerProxy("http://%s:%d"%(server_ip, server_port))
+        print self.server
         # -----------------------------------------------------------
         # Below are logging and latency vars (deprecated for Lab #2).
         # -----------------------------------------------------------
@@ -148,26 +149,45 @@ class StoneTablet:
 
 def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='localhost', server_port=8001, client_pull=True, pull_rate=10):
     client = StoneTablet(ip, port, server_ip, server_port, teams, events)
-
-    print client.get_medal_tally("Gaul")
-    """try:
-        # Client-pull architecture
+    try:
         while(client_pull):
             client.pull()
             time.sleep(pull_rate)
-
-        # Server-push architecture
         client.serve()
     except KeyboardInterrupt:
-        raise"""
+        raise
 
 if __name__ == "__main__":
+    local = False
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "ln:i:p:", ["run_locally","port=","serip=","serport="])
+    except getopt.error, msg:
+        print msg
+        sys.exit(2)
+    for o, a in opts:
+        if o in ("-h", "--help"):
+            print __doc__
+            sys.exit(0)
+        elif o in ("-l", "--run_locally"):
+            local = True
+        elif o in ("-n", "--port"):
+            port = int(a)
+        elif o in ("-i", "--serip"):
+            server_ip = a
+        elif o in ("-p", "--serport"):
+            server_port = int(a)
+    if local:
+        ip = "localhost"
+        server_ip = "localhost"
+    else:
+        ip = socket.gethostbyname(socket.gethostname())
 
-    main('localhost', 8005)
-    # main(ip=ip, port=port, server_ip=server_ip, server_port=8001, teams=fav_teams, events=fav_events)
-    #main(ip=ip, port=int(port), teams=fav_teams, events=fav_events, server_ip=server_ip, server_port=int(server_port), client_pull=client_pull)
-
-
+    # choose favorite teams, events randomly
+    fav_teams = list(set([random.choice(TEAMS) for x in xrange(3)]))
+    fav_teams = [x.lower() for x in fav_teams]
+    fav_events = list(set([random.choice(EVENTS) for x in xrange(3)]))
+    fav_events = [x.lower() for x in fav_events]
+    main(ip=ip, port=port, server_ip=server_ip, server_port=server_port, teams=fav_teams, events=fav_events)
 
         
 

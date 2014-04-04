@@ -49,7 +49,7 @@ class DBServerFunctions(ServerFunctions):
         """
         synched_clock_str = self.server.sync_vector_clocks(vector_clock_str)
         self.db_mgr.check_raffle(client_id, synched_clock_str)
-        return synched_clock_str, self.db_mgr.get_medal_tally(team_name)
+        return synched_clock_str, self.db_mgr.get_score(event_type)
 
     def increment_medal_tally(self, team_name, medal_type, timestamp):
         """Increments the medal tally for a given team via RPC to the DB Manager.
@@ -88,7 +88,7 @@ class DatabaseRPCHandler(SimpleXMLRPCRequestHandler):
         SimpleXMLRPCRequestHandler.do_POST(self)
 
 def main(ip, port=8000, uid=0):
-    hosts = [(ip, port), ('localhost', 8002), ('localhost', 8003)] # Fix this... this is simply the hosts of all the three servers
+    hosts = [(ip, port), ('localhost', 8002), ('localhost', 8003)]
     server = AsyncXMLRPCServer(uid, DatabaseRPCHandler, hosts)
     server.register_introspection_functions()
     server.register_instance(DBServerFunctions(server))
@@ -98,19 +98,42 @@ def main(ip, port=8000, uid=0):
     server.serve_forever()
 
 if __name__ == "__main__":
-    main("localhost", 8000, 0) #TODO: Delete me
-   
+    local = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "", ["run_locally=","serport="])
+        opts, args = getopt.getopt(sys.argv[1:], "lp:i:", ["run_locally","serport=","uid="])
     except getopt.error, msg:
         print msg
         sys.exit(2)
-
-    run_locally, port = [x[1] for x in opts]
-    if run_locally=="True":
+    for o, a in opts:
+        if o in ("-h", "--help"):
+            print __doc__
+            sys.exit(0)
+        elif o in ("-l", "--run_locally"):
+            local = True
+        elif o in ("-p", "--serport"):
+            port = int(a)
+        elif o in ("-i", "--uid"):
+            uid = int(a)
+    if local:
         ip = "localhost"
     else:
         ip = socket.gethostbyname(socket.gethostname())
-    print port
-    main(ip = ip, port=int(port))
+    main(ip=ip, port=port, uid=uid)
+
+# if __name__ == "__main__":
+#     main("localhost", 8000, 0) #TODO: Delete me
+   
+#     try:
+#         opts, args = getopt.getopt(sys.argv[1:], "", ["run_locally=","serport="])
+#     except getopt.error, msg:
+#         print msg
+#         sys.exit(2)
+
+#     run_locally, port = [x[1] for x in opts]
+#     if run_locally=="True":
+#         ip = "localhost"
+#     else:
+#         ip = socket.gethostbyname(socket.gethostname())
+#     print port
+#     main(ip = ip, port=int(port))
 

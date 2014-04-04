@@ -182,7 +182,7 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
             if host:
                 self.global_time_server = xmlrpclib.ServerProxy("http://%s:%d"%(host[0], host[1]))
                 self.time_server_set = True
-            return True if host else return False
+            return True if host else False
         else:
             print "Not enough servers up yet"
             return False

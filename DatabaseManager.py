@@ -6,6 +6,9 @@ from Global import Global
 import datetime
 from Synchronized import synchronized, synchronized_check
 
+TEAMS = ["Gaul", "Rome", "Carthage", "Greece", "Persia"]
+EVENTS = ["Stone Curling", "Stone Skating", "Underwater Stone Weaving", "Synchronized Stone Swimming"]
+
 class DatabaseManager:
     """DatabaseManager is the interface to SQL database on disk.
 
@@ -20,6 +23,10 @@ class DatabaseManager:
             self.cur = self.conn.cursor()
             self.cur.execute("CREATE TABLE IF NOT EXISTS Teams(Name TEXT, Gold_Medals INT, Silver_Medals INT, Bronze_Medals INT, Timestamp TEXT)")
             self.cur.execute("CREATE TABLE IF NOT EXISTS OlympicEvents(Type TEXT, Score TEXT, Timestamp TEXT)")
+            for team_name in TEAMS:
+                self.insert_team_into_db(team_name.lower())
+            for event_type in EVENTS:
+                self.insert_olympic_event_into_db(event_type.lower())
 
     def check_raffle(self, client_id, vector_clock_str):
         print vector_clock_str
@@ -91,6 +98,7 @@ class DatabaseManager:
         Arguments:
         team_name -- String for one of the Olympic teams.
         """
+        print self.cur
         with self.conn:
             self.cur.execute("SELECT * FROM Teams WHERE Name=?", (team_name,))
             row = self.cur.fetchone()
@@ -112,7 +120,6 @@ class DatabaseManager:
             data = self.cur.fetchone()
             if (data is None):
                 self.insert_olympic_event_into_db(event_type)
-
             self.cur.execute("UPDATE OlympicEvents SET Score=?, Timestamp=? WHERE Type=?", (score, timestamp, event_type))
         return "Score successfully updated."
 

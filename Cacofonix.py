@@ -68,76 +68,47 @@ class Cacofonix:
         print ack
         self.log_file.write("%s\n"%ack)
 
-def random_main(port=8001, server_ip='localhost', server_port=8000, update_rate=1):
+def main(port=8004, server_ip='localhost', server_port=8000, update_rate=5):
     """Main method that randomly simulates Olympic games and sends Cacofonix updates to Pygmy.com"""
     fonix = Cacofonix(port = port, server_ip = server_ip, server_port = server_port)
     while(True):
         try:
-            # rn.seed(10)
             time.sleep(random.random()*update_rate)
+
             event = random.randint(0, len(EVENTS)-1)
             team = random.randint(0, len(TEAMS)-1)
             lead = random.randint(1, 100)
             score = create_flavor_statement(team, event, lead)
 
-            fonix.set_score(EVENTS[event], score)
+            print EVENTS[event].lower()
+            fonix.set_score(EVENTS[event].lower(), score)
 
             if random.random() > 0.5:
                 medal_winners = random.sample(TEAMS, 3)
-                [fonix.increment_medal_tally(team, MEDALS[medal]) for medal, team in enumerate(medal_winners)]
+                [fonix.increment_medal_tally(team.lower(), MEDALS[medal].lower()) for medal, team in enumerate(medal_winners)]
         except (KeyboardInterrupt):
             raise
 
-
-def test_main(port=8003, server_ip='localhost', server_port=8001, update_rate=1):
-    fonix = Cacofonix(port = port, server_ip = server_ip, server_port = server_port)
-
-    fonix.increment_medal_tally("Gaul", "gold")
-    """while(True):
-        try:
-            # rn.seed(10)
-            time.sleep(update_rate)
-            event = 0
-            team = 0
-            lead = 1
-            score = create_flavor_statement(team, event, lead)
-
-            print score
-            fonix.set_score(EVENTS[event], score)
-
-            print "Gaul: gold"
-            fonix.increment_medal_tally("Gaul", "gold")
-            
-        except (KeyboardInterrupt):
-            break"""
-
 if __name__ == "__main__":
-    test_main()
-
-    """try:
-        opts, args = getopt.getopt(sys.argv[1:], "", ["port=", "serip=","serport=","mode=", "rate="])
+    local = False
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "ln:i:p:", ["run_locally","port=","serip=","serport="])
     except getopt.error, msg:
         print msg
         sys.exit(2)
+    for o, a in opts:
+        if o in ("-h", "--help"):
+            print __doc__
+            sys.exit(0)
+        elif o in ("-l", "--run_locally"):
+            local = True
+        elif o in ("-n", "--port"):
+            port = int(a)
+        elif o in ("-i", "--serip"):
+            server_ip = a
+        elif o in ("-p", "--serport"):
+            server_port = int(a)
+    if local:
+        server_ip = "localhost"
 
-    port, server_ip, server_port, mode, rate = [x[1] for x in opts]
-
-    if mode == "random":
-        random_main(port=int(port), server_ip=server_ip, server_port=int(server_port), update_rate=int(rate))
-    elif mode == "testing":
-        test_main(port=int(port), server_ip=server_ip, server_port=int(server_port), update_rate=int(rate))
-    else:
-        raise TypeError"""
-
-    
-
-
-
-
-
-
-
-
-
-
-
+    main(port=port, server_ip=server_ip, server_port=server_port)

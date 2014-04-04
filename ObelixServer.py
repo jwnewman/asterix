@@ -14,8 +14,6 @@ import getopt
 import os
 import sys
 
-HOST_NAME = 'localhost'
-
 class ObelixServerFunctions(ServerFunctions):
     """Implements all the functions of the frontend Obelix servers.
 
@@ -148,7 +146,6 @@ class ObelixServerFunctions(ServerFunctions):
                 self.keeper.unregister_client(client_id)
         return 1
 
-
 class ObelixRPCHandler(SimpleXMLRPCRequestHandler):
     rpc_paths = ('/RPC2',)
 
@@ -169,7 +166,6 @@ def main(ip, port=8002, uid=1):
     server.serve_forever()
 
 if __name__ == "__main__":
-    # main('localhost', 8003, 2)
     local = False
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lp:i:", ["run_locally","serport=","uid="])
