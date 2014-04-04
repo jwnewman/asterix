@@ -87,8 +87,8 @@ class DatabaseRPCHandler(SimpleXMLRPCRequestHandler):
         print clientIP, clientPort
         SimpleXMLRPCRequestHandler.do_POST(self)
 
-def main(ip, port=8000, uid=0):
-    hosts = [(ip, port), ('localhost', 8002), ('localhost', 8003)]
+def main(ip, port=8000, uid=0, frontends=[('localhost', 8002), ('localhost', 8003)]):
+    hosts = [(ip, port)] + frontends
     server = AsyncXMLRPCServer(uid, DatabaseRPCHandler, hosts)
     server.register_introspection_functions()
     server.register_instance(DBServerFunctions(server))
@@ -100,7 +100,8 @@ def main(ip, port=8000, uid=0):
 if __name__ == "__main__":
     local = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "lp:i:", ["run_locally","port=","uid="])
+        opts, args = getopt.getopt(sys.argv[1:], "lp:i:x:y:", ["run_locally","port=","uid=","xhost=","yhost="])
+
     except getopt.error, msg:
         print msg
         sys.exit(2)
@@ -114,9 +115,19 @@ if __name__ == "__main__":
             port = int(a)
         elif o in ("-i", "--uid"):
             uid = int(a)
+        elif o in ("-x", "--xhost"):
+            xip, xport = a.split(":")
+            xport = int(xport)
+        elif o in ("-y", "--yhost"):
+            yip, yport = a.split(":")
+            yport = int(yport)
     if local:
         ip = "localhost"
+        xip = "localhost"
+        xport = 8002
+        yip = "localhost"
+        yport = 8003
     else:
         ip = socket.gethostbyname(socket.gethostname())
-    main(ip=ip, port=port, uid=uid)
+    main(ip=ip, port=port, uid=uid, frontends =[(xip, xport), (yip, yport)])
 

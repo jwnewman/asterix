@@ -1,234 +1,258 @@
-------Received Olympic Event Update: 04 Apr 2014 21:46:02------
+------Received Olympic Event Update: 04 Apr 2014 22:26:14------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:02------
+------Received Olympic Medal Update: 04 Apr 2014 22:26:14------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:03------
+------Received Olympic Medal Update: 04 Apr 2014 22:26:14------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:03------
+------Received Olympic Medal Update: 04 Apr 2014 22:26:14------
 Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:46:04------
+------Received Olympic Event Update: 04 Apr 2014 22:26:15------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:04------
+------Received Olympic Medal Update: 04 Apr 2014 22:26:15------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:04------
+------Received Olympic Medal Update: 04 Apr 2014 22:26:15------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:04------
+------Received Olympic Medal Update: 04 Apr 2014 22:26:15------
 Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:46:05------
+------Received Olympic Event Update: 04 Apr 2014 22:26:19------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:07------
+------Received Olympic Medal Update: 04 Apr 2014 22:26:19------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:26:19------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:26:19------
+Successfully incremented.
+------Received Olympic Event Update: 04 Apr 2014 22:26:20------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:12------
+------Received Olympic Medal Update: 04 Apr 2014 22:26:20------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:26:20------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:26:20------
+Successfully incremented.
+------Received Olympic Event Update: 04 Apr 2014 22:26:20------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:13------
+------Received Olympic Event Update: 04 Apr 2014 22:26:25------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:13------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:13------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:13------
-Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:46:16------
+------Received Olympic Event Update: 04 Apr 2014 22:26:29------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:17------
+------Received Olympic Event Update: 04 Apr 2014 22:26:31------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:17------
+------Received Olympic Medal Update: 04 Apr 2014 22:26:31------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:17------
+------Received Olympic Medal Update: 04 Apr 2014 22:26:31------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:17------
+------Received Olympic Medal Update: 04 Apr 2014 22:26:31------
 Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:46:17------
+------Received Olympic Event Update: 04 Apr 2014 22:26:34------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:17------
+------Received Olympic Event Update: 04 Apr 2014 22:26:37------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:19------
+------Received Olympic Event Update: 04 Apr 2014 22:26:38------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:21------
+------Received Olympic Medal Update: 04 Apr 2014 22:26:38------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:26:38------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:26:38------
+Successfully incremented.
+------Received Olympic Event Update: 04 Apr 2014 22:26:39------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:21------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:21------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:21------
-Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:46:23------
+------Received Olympic Event Update: 04 Apr 2014 22:26:41------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:27------
+------Received Olympic Event Update: 04 Apr 2014 22:26:44------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:27------
+------Received Olympic Medal Update: 04 Apr 2014 22:26:44------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:27------
+------Received Olympic Medal Update: 04 Apr 2014 22:26:44------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:27------
+------Received Olympic Medal Update: 04 Apr 2014 22:26:44------
 Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:46:27------
+------Received Olympic Event Update: 04 Apr 2014 22:26:46------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:27------
+------Received Olympic Event Update: 04 Apr 2014 22:26:48------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:27------
+------Received Olympic Medal Update: 04 Apr 2014 22:26:48------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:26:48------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:26:48------
+Successfully incremented.
+------Received Olympic Event Update: 04 Apr 2014 22:26:51------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:27------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:27------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:27------
-Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:46:28------
+------Received Olympic Event Update: 04 Apr 2014 22:26:54------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:28------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:28------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:28------
-Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:46:32------
+------Received Olympic Event Update: 04 Apr 2014 22:26:57------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:35------
+------Received Olympic Event Update: 04 Apr 2014 22:27:02------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:35------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:02------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:35------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:02------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:35------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:02------
 Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:46:37------
+------Received Olympic Event Update: 04 Apr 2014 22:27:05------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:38------
+------Received Olympic Event Update: 04 Apr 2014 22:27:07------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:38------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:07------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:38------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:07------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:38------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:07------
 Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:46:38------
+------Received Olympic Event Update: 04 Apr 2014 22:27:11------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:42------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:11------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:27:11------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:27:11------
+Successfully incremented.
+------Received Olympic Event Update: 04 Apr 2014 22:27:12------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:43------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:12------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:27:12------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:27:12------
+Successfully incremented.
+------Received Olympic Event Update: 04 Apr 2014 22:27:16------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:48------
+------Received Olympic Event Update: 04 Apr 2014 22:27:17------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:48------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:48------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:48------
-Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:46:48------
+------Received Olympic Event Update: 04 Apr 2014 22:27:20------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:49------
+------Received Olympic Event Update: 04 Apr 2014 22:27:24------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:49------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:49------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:49------
-Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:46:50------
+------Received Olympic Event Update: 04 Apr 2014 22:27:27------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:50------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:50------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:50------
-Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:46:53------
+------Received Olympic Event Update: 04 Apr 2014 22:27:29------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:54------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:29------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:27:29------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:27:29------
+Successfully incremented.
+------Received Olympic Event Update: 04 Apr 2014 22:27:29------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:46:55------
+------Received Olympic Event Update: 04 Apr 2014 22:27:31------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:55------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:31------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:55------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:31------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:46:55------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:31------
 Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:46:57------
+------Received Olympic Event Update: 04 Apr 2014 22:27:32------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:47:01------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:32------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:27:32------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:27:32------
+Successfully incremented.
+------Received Olympic Event Update: 04 Apr 2014 22:27:35------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:01------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:35------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:01------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:35------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:01------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:35------
 Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:47:02------
+------Received Olympic Event Update: 04 Apr 2014 22:27:36------
 Score successfully updated.
-------Received Olympic Event Update: 04 Apr 2014 21:47:04------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:36------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:27:36------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:27:36------
+Successfully incremented.
+------Received Olympic Event Update: 04 Apr 2014 22:27:36------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:04------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:04------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:04------
-Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:47:06------
+------Received Olympic Event Update: 04 Apr 2014 22:27:39------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:06------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:06------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:06------
-Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:47:08------
+------Received Olympic Event Update: 04 Apr 2014 22:27:41------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:08------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:41------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:08------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:41------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:08------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:41------
 Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:47:11------
+------Received Olympic Event Update: 04 Apr 2014 22:27:43------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:11------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:11------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:11------
-Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:47:15------
+------Received Olympic Event Update: 04 Apr 2014 22:27:46------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:15------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:46------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:15------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:46------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:15------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:46------
 Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:47:16------
+------Received Olympic Event Update: 04 Apr 2014 22:27:47------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:16------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:16------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:16------
-Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:47:16------
+------Received Olympic Event Update: 04 Apr 2014 22:27:51------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:16------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:51------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:16------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:51------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:16------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:51------
 Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:47:18------
+------Received Olympic Event Update: 04 Apr 2014 22:27:51------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:18------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:18------
-Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:18------
-Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:47:20------
+------Received Olympic Event Update: 04 Apr 2014 22:27:54------
 Score successfully updated.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:20------
+------Received Olympic Event Update: 04 Apr 2014 22:27:59------
+Score successfully updated.
+------Received Olympic Medal Update: 04 Apr 2014 22:27:59------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:20------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:59------
 Successfully incremented.
-------Received Olympic Medal Update: 04 Apr 2014 21:47:20------
+------Received Olympic Medal Update: 04 Apr 2014 22:27:59------
 Successfully incremented.
-------Received Olympic Event Update: 04 Apr 2014 21:47:21------
+------Received Olympic Event Update: 04 Apr 2014 22:28:00------
+Score successfully updated.
+------Received Olympic Medal Update: 04 Apr 2014 22:28:00------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:28:00------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:28:00------
+Successfully incremented.
+------Received Olympic Event Update: 04 Apr 2014 22:28:00------
+Score successfully updated.
+------Received Olympic Event Update: 04 Apr 2014 22:28:03------
+Score successfully updated.
+------Received Olympic Medal Update: 04 Apr 2014 22:28:03------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:28:03------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:28:03------
+Successfully incremented.
+------Received Olympic Event Update: 04 Apr 2014 22:28:07------
+Score successfully updated.
+------Received Olympic Medal Update: 04 Apr 2014 22:28:07------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:28:07------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:28:07------
+Successfully incremented.
+------Received Olympic Event Update: 04 Apr 2014 22:28:09------
+Score successfully updated.
+------Received Olympic Event Update: 04 Apr 2014 22:28:10------
+Score successfully updated.
+------Received Olympic Medal Update: 04 Apr 2014 22:28:10------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:28:10------
+Successfully incremented.
+------Received Olympic Medal Update: 04 Apr 2014 22:28:10------
+Successfully incremented.
+------Received Olympic Event Update: 04 Apr 2014 22:28:14------
+Score successfully updated.
+------Received Olympic Event Update: 04 Apr 2014 22:28:17------
+Score successfully updated.
+------Received Olympic Event Update: 04 Apr 2014 22:28:21------
 Score successfully updated.

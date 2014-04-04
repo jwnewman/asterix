@@ -154,7 +154,7 @@ class ObelixRPCHandler(SimpleXMLRPCRequestHandler):
         print clientIP, clientPort
         SimpleXMLRPCRequestHandler.do_POST(self)
 
-def main(ip, port=8002, uid=1):
+def main(ip, port=8002, uid=1, db=('localhost', 8000), other_host=('localhost', 8003)):
     log_file = open("log_server.txt", "w+", 5)
     hosts = [('localhost', 8000), ('localhost', 8002), ('localhost', 8003)]
     server = AsyncXMLRPCServer(uid, ObelixRPCHandler, hosts)
@@ -168,7 +168,7 @@ def main(ip, port=8002, uid=1):
 if __name__ == "__main__":
     local = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "lp:i:", ["run_locally","port=","uid="])
+        opts, args = getopt.getopt(sys.argv[1:], "lp:i:d:z:", ["run_locally","port=","uid=","dbhost=","zhost="])
     except getopt.error, msg:
         print msg
         sys.exit(2)
@@ -182,8 +182,18 @@ if __name__ == "__main__":
             port = int(a)
         elif o in ("-i", "--uid"):
             uid = int(a)
+        elif o in ("-d", "--dbhost"):
+            db_ip, db_port = a.split(":")
+            db_port = int(db_port)
+        elif o in ("-z", "--zhost"):
+            z_ip, z_port = a.split(":")
+            z_port = int(yport)
     if local:
         ip = "localhost"
+        z_ip = "localhost"
+        z_port = 8002 if port is 8003 else 8003
+        db_ip = "localhost"
+        db_port = 8000
     else:
         ip = socket.gethostbyname(socket.gethostname())
-    main(ip=ip, port=port, uid=uid)
+    main(ip=ip, port=port, uid=uid, db=(db_ip, db_port), other_host=(z_ip, z_port))
