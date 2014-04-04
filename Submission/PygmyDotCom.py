@@ -150,11 +150,28 @@ class PygmyRPCHandler(SimpleXMLRPCRequestHandler):
 def main(ip, port=8001):
     db = ('localhost', 8000)
     frontends = [('localhost', 8002), ('localhost', 8003)]
-
     server = PygmyServer((ip, port), PygmyRPCHandler)
     server.register_introspection_functions()
     server.register_instance(PygmyServerFunctions(db, frontends))
     server.serve_forever()
 
 if __name__ == "__main__":
-    main('localhost', 8001)
+    local = False
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "lp:", ["run_locally","port="])
+    except getopt.error, msg:
+        print msg
+        sys.exit(2)
+    for o, a in opts:
+        if o in ("-h", "--help"):
+            print __doc__
+            sys.exit(0)
+        elif o in ("-l", "--run_locally"):
+            local = True
+        elif o in ("-p", "--port"):
+            port = int(a)
+    if local:
+        ip = "localhost"
+    else:
+        ip = socket.gethostbyname(socket.gethostname())
+    main(ip=ip, port=port)
