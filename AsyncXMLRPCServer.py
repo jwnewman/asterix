@@ -152,10 +152,9 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
         """
         print self.global_time_server
         if (self.am_leader == True):
-            print "Time server connected."
             return "Time server connected."
         elif (self.time_server_set == False):
-            print "There is currently no time server. Fetching from existing process."
+            print "I am not aware of a time server. Fetching from existing process."
             if (self.fetch_time_server() == False):
                 print "Fetch failed. Electing a leader."
                 self.start_election()
@@ -166,19 +165,16 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
 
     def time_server_not_responding(self):
         """Returns True/False whether current time server is responsive."""
-        print "Checking if the time server is responding..."
         if not self.time_server_set:
-            print "No time server yet."
             return False
         if self.am_leader:
-            print "I am leader."
             return False
         try:
             uid = self.global_time_server.get_id()
         except socket.error:
             self.global_time_server = None
             self.time_server_set = False
-            print "Not responding."
+            print "The time server is not responding."
             return True
         print "The time server is responding!"
         return False
@@ -197,7 +193,7 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
                 self.time_server_set = True
             return True if host else False
         else:
-            print "Not enough servers up yet"
+            print "Not enough servers up yet. Cannot fetch a time server."
             return False
 
     def start_election(self):
@@ -208,8 +204,8 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
         print "---------\nStarting an election...\n---------"
         processes = self.get_processes()
         if len(processes) == 0:
-            print "Not enough servers up yet"
-            return
+            print "Not enough servers up yet. Cannot initiate election."
+            return "Not enough servers up yet."
         higher_active_process = False
         for uid, server in processes.iteritems():
             if uid <= self.uid:
@@ -239,8 +235,8 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
         """
         processes = self.get_processes()
         if (len(processes) == 0):
-            print "Not enough servers up yet"
-            return 
+            print "Not enough servers up yet. Cannot synchronize clocks."
+            return "Cannot synchronize clocks yet."
         servers = list(processes.itervalues())
 
         local_time = time.time()
@@ -254,7 +250,7 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
         t = Timer(5, self.set_offset_for_processes)
         t.daemon = True
         t.start()
-        return
+        return "Clocks synchronized."
 
 if __name__ == "__main__":
     import doctest

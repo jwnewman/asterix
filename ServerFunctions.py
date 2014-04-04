@@ -50,7 +50,7 @@ class ServerFunctions():
         offset -- Float representing offset (fractions of sec).
         """
         self.server.set_offset(offset)
-        print "New offset is " + str(self.server.offset)
+        print "Time server has synchronized clocks. New offset is " + str(self.server.offset)
         return True
 
     def get_timestamp(self):
