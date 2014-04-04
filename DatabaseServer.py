@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""Module for DBServer and related classes."""
 
 import xmlrpclib
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
@@ -13,23 +14,68 @@ from AsyncXMLRPCServer import AsyncXMLRPCServer
 from ServerFunctions import ServerFunctions
 
 class DBServerFunctions(ServerFunctions):
+    """Implements functions for the DBServer.
+
+    Arguments:
+    server -- The active server object implementing these methods.
+    """
     def __init__(self, server):
         self.db_mgr = DatabaseManager()
         ServerFunctions.__init__(self, server)
 
     def set_score(self, event_type, score, timestamp):
+        """Sets the score for a given event via RPC to the DB Manager.
+
+        Always called by ScoreKeeper.
+
+        Arguments:
+        event_type -- String for one of the Olympic events.
+        score -- String for the updated score.
+        timestamp -- Time of the update.
+        """
         return self.db_mgr.set_score(event_type, score, timestamp)
 
     def get_score(self, event_type, client_id, vector_clock_str):
-        synched_clock_str = self.server.synch_vector_clocks(vector_clock_str)
+        """Returns synced vector clock and current score for a given event via RPC to the DB Manager.
+
+        Always called by ScoreKeeper.
+
+        First syncs vector clock with the vector clock passed in.
+
+        Arguments:
+        event_type -- String for one of the Olympic events.
+        client_id -- Unique string ID of the initial requesting client (used for raffle).
+        vector_clock_str -- String representation of the vector clock of the frontend server.
+        """
+        synched_clock_str = self.server.sync_vector_clocks(vector_clock_str)
         self.db_mgr.check_raffle(client_id, synched_clock_str)
         return synched_clock_str, self.db_mgr.get_medal_tally(team_name)
 
     def increment_medal_tally(self, team_name, medal_type, timestamp):
+        """Increments the medal tally for a given team via RPC to the DB Manager.
+
+        Always called by ScoreKeeper.
+
+        Arguments:
+        team_name -- String for one of the Olympic teams.
+        medal_type -- String for the type of medal to increment.
+        timestamp -- Time of the update.
+        """
         return self.db_mgr.increment_medal_tally(team_name, medal_type, timestamp)
 
     def get_medal_tally(self, team_name, client_id, vector_clock_str):
-        synched_clock_str = self.server.synch_vector_clocks(vector_clock_str)
+        """Returns synced vector clock and current medal tally for a given team via RPC to the DB Manager.
+
+        Always called by ScoreKeeper.
+
+        First syncs vector clock with the vector clock passed in.
+
+        Arguments:
+        team_name -- String for one of the Olympic teams.
+        client_id -- Unique string ID of the initial requesting client (used for raffle).
+        vector_clock_str -- String representation of the vector clock of the frontend server.
+        """
+        synched_clock_str = self.server.sync_vector_clocks(vector_clock_str)
         self.db_mgr.check_raffle(client_id, synched_clock_str)
         return synched_clock_str, self.db_mgr.get_medal_tally(team_name)
     
@@ -50,7 +96,6 @@ def main(ip, port=8000, uid=0):
     t.daemon = True
     t.start()
     server.serve_forever()
-        
 
 if __name__ == "__main__":
     main("localhost", 8000, 0) #TODO: Delete me
@@ -65,7 +110,6 @@ if __name__ == "__main__":
     if run_locally=="True":
         ip = "localhost"
     else:
-        print "HOORAY"
         ip = socket.gethostbyname(socket.gethostname())
     print port
     main(ip = ip, port=int(port))

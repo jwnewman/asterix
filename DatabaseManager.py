@@ -1,3 +1,5 @@
+"""Module for DatabaseManager and related classes."""
+
 import sqlite3
 from threading import Thread, RLock, Event
 from Global import Global
@@ -5,6 +7,12 @@ import datetime
 from Synchronized import synchronized, synchronized_check
 
 class DatabaseManager:
+    """DatabaseManager is the interface to SQL database on disk.
+
+    Writes/reads all event scores and medal tallies. 
+
+    Also, keeps track of the raffle entries.
+    """
     def __init__(self):
         self.raffle_entries = {}
         self.conn = sqlite3.connect('scores.db', check_same_thread = False)

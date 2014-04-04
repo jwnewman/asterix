@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""Module for ObelixServer and related classes."""
 
 import xmlrpclib
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
@@ -25,7 +26,7 @@ class ObelixServerFunctions(ServerFunctions):
     def get_medal_tally(self, team_name, client_id):
         self.server.increment_event_count()
         vector_clock_str, medal_tally = self.keeper.get_medal_tally(team_name, client_id, self.server.vector_clock_to_string())
-        self.server.synch_vector_clocks(vector_clock_str)
+        self.server.sync_vector_clocks(vector_clock_str)
         return medal_tally
 
     def increment_medal_tally(self, team_name, medal_type, password):
@@ -38,7 +39,7 @@ class ObelixServerFunctions(ServerFunctions):
     def get_score(self, event_type, client_id):
         self.server.increment_event_count()
         vector_clock_str, score = self.keeper.get_score(event_type, client_id, self.server.vector_clock_to_string())
-        self.server.synch_vector_clocks(vector_clock_str)
+        self.server.sync_vector_clocks(vector_clock_str)
         return score
 
     def set_score(self, event_type, score, password):
