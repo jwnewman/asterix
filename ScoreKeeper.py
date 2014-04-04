@@ -18,7 +18,7 @@ class ScoreKeeper:
     Server-push mode has been deprecated for Lab #2.
 
     Arguments:
-    db -- (ip, host) tuple which is the address of the database server.
+    db -- (ip, port) tuple which is the address of the database server.
     """
     def __init__(self, db):
         self.events = {}
@@ -29,10 +29,6 @@ class ScoreKeeper:
             self.teams[team_name.lower()] = Team(team_name)
         self.db = db
         self.db_server = xmlrpclib.ServerProxy("http://%s:%d"%db)
-
-    # ----------------------------------------------
-    # All functions below are for client-pull mode.
-    # ----------------------------------------------
 
     def get_medal_tally(self, team_name, client_id, vector_clock_str):
         """Returns the current medal tally for a given team via RPC to the DB Server.

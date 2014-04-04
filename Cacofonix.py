@@ -1,11 +1,11 @@
+"""Module for Cacofonix class."""
+
 import xmlrpclib
 import random
 import time
 import getopt
 import os
 import sys
-
-# This class provides the server with real-time updates about Olympic teams and events.
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 
@@ -14,38 +14,63 @@ MEDALS = ["gold", "silver", "bronze"]
 EVENTS = ["Stone Curling", "Stone Skating", "Underwater Stone Weaving", "Synchronized Stone Swimming"]
 UNITS = ["points", "laps", "baskets", "points"]
 
-# Creates the message that is sent back to the server.
-# This message is our version of a "score".
-def create_flavor_statement(team, event, lead):
-    # TODO: Make more variants
+def create_flavor_statement(team_num, event_num, lead):
+    """Creates a message that is sent back to the server.
 
-    return "What a day in %s! Currently in the lead is %s by %d %s."%(EVENTS[event].lower(), TEAMS[team], lead, UNITS[event])
+    The returned flavor message is the ``score''. 
+
+    Arguments:
+    team_num -- Index (int) in TEAMS for team name.
+    event_num -- Index (int) in EVENTS for event type.
+    lead -- An int representing how much the team is winning by.
+    """
+    return "What a day in %s! Currently in the lead is %s by %d %s."%(EVENTS[event_num].lower(), TEAMS[team_num], lead, UNITS[event_num])
 
 class Cacofonix:
-    # Cacofonix needs to know the server IP and port, and the secret password which only Cacofonix and the server know.
+    """Cacofonix real-time updates about Olympic teams and events to Pygmy.com.
+
+    Arguments:
+    port -- Int for StoneTablet's port.
+    server_ip -- String for IP address for the Pygmy.com server.
+    server_port -- Int for Port for the Pygmy.com server.
+    """
     def __init__(self, port, server_ip, server_port):
         self.port = port
         self.secret_id = "SECRET PASSWORD LOL HOORAY"
         self.server = xmlrpclib.ServerProxy("http://%s:%d"%(server_ip, server_port))
-        # Latency measurements for server-push architecture
         self.log_file = open("log_cacofonix.txt", "w+", 5)
-    # Calls the server with an updated score for an event, gets an acknowledgment back.
-    def set_score(self, event, score):
+
+    def set_score(self, event_type, score):
+        """Sets the score for a given event via RPC to Pygmy.com.
+
+        Passes the secret password to Pygmy.com for Cacofonix authentication.
+
+        Arguments:
+        event_type -- String for one of the Olympic events.
+        score -- String for the updated score.
+        """
         self.log_file.write("------Received Olympic Event Update: %s------\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
-        ack = self.server.set_score(event, score, self.secret_id)
+        ack = self.server.set_score(event_type, score, self.secret_id)
         print ack
         self.log_file.write("%s\n"%ack)
-    # Calls the server to increment the medal tally, gets an acknowledgment back.
-    def increment_medal_tally(self, team, medal):
+
+    def increment_medal_tally(self, team_name, medal_type):
+        """Increments the medal tally for a given team via RPC to Pygmy.com.
+
+        Passes the secret password to Pygmy.com for Cacofonix authentication.
+
+        Arguments:
+        team_name -- String for one of the Olympic teams.
+        medal_type -- String for the type of medal to increment.
+        """
         self.log_file.write("------Received Olympic Medal Update: %s------\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
-        ack = self.server.increment_medal_tally(team, medal, self.secret_id)
+        ack = self.server.increment_medal_tally(team_name, medal_type, self.secret_id)
         print ack
         self.log_file.write("%s\n"%ack)
 
 def random_main(port=8001, server_ip='localhost', server_port=8000, update_rate=1):
+    """Main method that randomly simulates Olympic games and sends Cacofonix updates to Pygmy.com"""
     fonix = Cacofonix(port = port, server_ip = server_ip, server_port = server_port)
-    # Sends updates to the server infinitely with a randomly spaced amount of time in between.
-    # Increments the medal tally for a random team about half as often as it sets the score for an event.
     while(True):
         try:
             # rn.seed(10)

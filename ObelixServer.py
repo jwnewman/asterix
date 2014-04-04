@@ -17,6 +17,16 @@ import sys
 HOST_NAME = 'localhost'
 
 class ObelixServerFunctions(ServerFunctions):
+    """Implements all the functions of the frontend Obelix servers.
+
+    ObelixServer supports both server-push and client-pull mode.  
+    Server-push mode has been deprecated for Lab #2.
+
+    Arguments:
+    log_file -- Opened file for logging output (deprecated).
+    server -- The active server object implementing these methods.
+    db -- (ip, port) tuple which is the address of the database server.
+    """
     def __init__(self, log_file, server, db):
         self.keeper = ScoreKeeper(db)
         self.secret_id = "SECRET PASSWORD LOL HOORAY"
@@ -24,12 +34,35 @@ class ObelixServerFunctions(ServerFunctions):
         ServerFunctions.__init__(self, server)
 
     def get_medal_tally(self, team_name, client_id):
+        """Returns current medal tally for a given team via RPC to ScoreKeeper.
+
+        Always called by Pygmy.com on behalf of a requesting client.
+
+        First increments internal event count in vector clock.
+        ScoreKeeper returns tally and vector clock of DB.
+        Syncs with DB vector clock before returning tally.
+
+        Arguments:
+        team_name -- String for one of the Olympic teams.
+        client_id -- Unique string ID of the initial requesting client (used for raffle).
+        """
         self.server.increment_event_count()
         vector_clock_str, medal_tally = self.keeper.get_medal_tally(team_name, client_id, self.server.vector_clock_to_string())
         self.server.sync_vector_clocks(vector_clock_str)
         return medal_tally
 
     def increment_medal_tally(self, team_name, medal_type, password):
+        """Increments the medal tally for a given team via RPC to ScoreKeeper.
+
+        Always called by Pygmy.com on behalf of Cacofonix.
+
+        Pushes update to all clients in server-push mode (deprecated).
+
+        Arguments:
+        team_name -- String for one of the Olympic teams.
+        medal_type -- String for the type of medal to increment.
+        password -- Unique password only known by Cacofonix (hopefully).
+        """
         if password != self.secret_id:
             return "Unauthorized entry attempt."
         ack = self.keeper.increment_medal_tally(team_name, medal_type, self.get_timestamp())
@@ -37,17 +70,44 @@ class ObelixServerFunctions(ServerFunctions):
         return ack
 
     def get_score(self, event_type, client_id):
+        """Returns the current score for a given event via RPC to ScoreKeeper.
+
+        Always called by Pygmy.com on behalf of a requesting client.
+
+        First increments internal event count in vector clock.
+        ScoreKeeper returns tally and vector clock of DB.
+        Syncs with DB vector clock before returning tally.
+
+        Arguments:
+        event_type -- String for one of the Olympic events.
+        client_id -- Unique string ID of the requesting client (used for raffle).
+        """
         self.server.increment_event_count()
         vector_clock_str, score = self.keeper.get_score(event_type, client_id, self.server.vector_clock_to_string())
         self.server.sync_vector_clocks(vector_clock_str)
         return score
 
     def set_score(self, event_type, score, password):
+        """Sets the score for a given event via RPC to ScoreKeeper.
+
+        Always called by Pygmy.com on behalf of Cacofonix.
+
+        Pushes update to all clients in server-push mode (deprecated).
+
+        Arguments:
+        event_type -- String for one of the Olympic events.
+        score -- String for the updated score.
+        password -- Unique password only known by Cacofonix (hopefully).
+        """
         if password != self.secret_id:
             return "Unauthorized entry attempt."
         ack = self.keeper.set_score(event_type, score, self.get_timestamp())
         self.push_update_for_event(self.keeper.get_registered_clients_for_event(event_type), event_type)
         return ack
+
+# --------------------------------------------------------------------
+# All functions below are for server-push mode (deprecated for Lab #2).
+# --------------------------------------------------------------------
 
     def register_client(self, client_id, events, teams):
         return self.keeper.register_client(client_id, events, teams)
