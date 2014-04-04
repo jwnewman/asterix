@@ -20,18 +20,18 @@ class DBServerFunctions(ServerFunctions):
     def set_score(self, event_type, score, timestamp):
         return self.db_mgr.set_score(event_type, score, timestamp)
 
-    def get_score(self, event_type, client_id, vector_clock):
-        synched_clock = self.synch_vector_clocks(vector_clock)
-        self.db_mgr.check_raffle(client_id, synched_clock)
-        return synched_clock, self.db_mgr.get_medal_tally(team_name)
+    def get_score(self, event_type, client_id, vector_clock_str):
+        synched_clock_str = self.server.synch_vector_clocks(vector_clock_str)
+        self.db_mgr.check_raffle(client_id, synched_clock_str)
+        return synched_clock_str, self.db_mgr.get_medal_tally(team_name)
 
     def increment_medal_tally(self, team_name, medal_type, timestamp):
         return self.db_mgr.increment_medal_tally(team_name, medal_type, timestamp)
 
-    def get_medal_tally(self, team_name, client_id, vector_clock):
-        self.synch_vector_clocks(vector_clock)
-        self.db_mgr.check_raffle(client_id, synched_clock)
-        return self.server.vector_clock.copy(), self.db_mgr.get_medal_tally(team_name)
+    def get_medal_tally(self, team_name, client_id, vector_clock_str):
+        synched_clock_str = self.server.synch_vector_clocks(vector_clock_str)
+        self.db_mgr.check_raffle(client_id, synched_clock_str)
+        return synched_clock_str, self.db_mgr.get_medal_tally(team_name)
     
 class DatabaseRPCHandler(SimpleXMLRPCRequestHandler):
     rpc_paths = ('/RPC2',)

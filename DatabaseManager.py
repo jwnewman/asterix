@@ -49,9 +49,11 @@ class DatabaseManager:
             self.cur.execute("INSERT INTO OlympicEvents VALUES(?, ?, ?)", olympic_event)
         return
 
-    def check_raffle(self, client_id, vector_clock):
+    def check_raffle(self, client_id, vector_clock_str):
+        print vector_clock_str
+        vector_clock = map(int, vector_clock_str.split())
         if sum(vector_clock)%10==0:
-            self.enter_raffle_contestant(client_id, sum(vector_clock))
+            print self.enter_raffle_contestant(client_id, sum(vector_clock))
 
     @synchronized(Global.raffle_lock)
     def enter_raffle_contestant(self, client_id, entry_num):

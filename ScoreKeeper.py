@@ -23,20 +23,21 @@ class ScoreKeeper:
         self.db = db
         self.db_server = xmlrpclib.ServerProxy("http://%s:%d"%db)
 
-    def get_medal_tally(self, team_name, client_id, vector_clock):
+    def get_medal_tally(self, team_name, client_id, vector_clock_str):
         if team_name.lower() not in [t.lower() for t in TEAMS]:
             return "Error 8483 -- unrecognized team name:\n\t%s"%team_name
-        return self.db_server.get_medal_tally(team_name, client_id, vector_clock)
+        return self.db_server.get_medal_tally(team_name, client_id, vector_clock_str)
+        # return self.db_server.get_medal_tally(team_name, client_id, vector_clock_str)
 
     def increment_medal_tally(self, team_name, medal_type, timestamp):
         if medal_type.lower() not in [m.lower() for m in MEDALS]:
             return "Error 15010 -- unrecognized medal metal:\n\t%s"%medal_type
         return self.db_server.increment_medal_tally(team_name, medal_type, timestamp)
 
-    def get_score(self, event_type, client_id, vector_clock):
+    def get_score(self, event_type, client_id, vector_clock_str):
         if event_type.lower() not in [e.lower() for e in EVENTS]:
             return "Error 28734 -- unrecognized event type:\n\t%s"%event_type
-        return self.db_server.get_score(event_type, client_id, vector_clock)
+        return self.db_server.get_score(event_type, client_id, vector_clock_str)
 
     def set_score(self, event_type, score, timestamp):
         if event_type.lower() not in [e.lower() for e in EVENTS]:

@@ -5,7 +5,6 @@ import SocketServer
 import random
 import xmlrpclib
 import datetime
-import numpy as np
 # from Synchronized import synchronized, synchronized_check
 
 
@@ -33,20 +32,40 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
         self.am_leader = False
 
         self.clock_lock = Lock()
-        self.vector_clock = np.zeros(len(hosts), dtype=int)
+        self.vector_clock = [0 for x in xrange(len(hosts))]
 
         SimpleXMLRPCServer.__init__(self, self.host, request_handler)
+
+    def vector_clock_to_string(self):
+        """ Returns string representation of instance's vector clock.
+        Example usage:
+        >>> a = AsyncXMLRPCServer(0, SimpleXMLRPCRequestHandler, [None])
+        >>> a.vector_clock = [1, 10, 12, 4]
+        >>> a.vector_clock_to_string()
+        '1 10 12 4'
+        """
+        return " ".join(map(str, self.vector_clock))
+
+    def vector_clock_from_string(self, vector_clock_str):
+        """ Returns list representation of a vector clock string.
+        Example usage:
+        >>> a = AsyncXMLRPCServer(0, SimpleXMLRPCRequestHandler, [None])
+        >>> a.vector_clock = [1, 10, 12, 4]
+        >>> a.vector_clock_from_string('1 10 12 4')
+        [1, 10, 12, 4]
+        """
+        return map(int, vector_clock_str.split())
 
     def increment_event_count(self):
         with self.clock_lock:
             self.vector_clock[self.uid] += 1
 
     # @synchronized(self.clock_lock)
-    def synch_vector_clocks(self, vector_clock):
+    def synch_vector_clocks(self, vector_clock_str):
+        vector_clock = self.vector_clock_from_string(vector_clock_str)
         with self.clock_lock:
-            self.vector_clock = np.asarray([max(i,j) for i,j in zip(self.vector_clock, vector_clock)])
-            vc_copy = self.vector_clock.copy()
-        return vc_copy
+            self.vector_clock = [max(i,j) for i,j in zip(self.vector_clock, vector_clock)]
+        return self.vector_clock_to_string()
 
     def get_offset(self):
         return self.offset

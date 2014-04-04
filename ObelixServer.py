@@ -12,7 +12,6 @@ import time
 import getopt
 import os
 import sys
-import numpy as np
 
 HOST_NAME = 'localhost'
 
@@ -24,13 +23,9 @@ class ObelixServerFunctions(ServerFunctions):
         ServerFunctions.__init__(self, server)
 
     def get_medal_tally(self, team_name, client_id):
-        print "blah"
         self.server.increment_event_count()
-        print "blah"
-        vector_clock, medal_tally = self.keeper.get_medal_tally(team_name, client_id, self.server.vector_clock.copy())
-        print "blah"
-        self.synch_vector_clocks(vector_clock)
-        print "blah"
+        vector_clock_str, medal_tally = self.keeper.get_medal_tally(team_name, client_id, self.server.vector_clock_to_string())
+        self.server.synch_vector_clocks(vector_clock_str)
         return medal_tally
 
     def increment_medal_tally(self, team_name, medal_type, password):
@@ -42,8 +37,8 @@ class ObelixServerFunctions(ServerFunctions):
 
     def get_score(self, event_type, client_id):
         self.server.increment_event_count()
-        vector_clock, score = self.keeper.get_score(event_type, client_id, self.server.vector_clock.copy())
-        self.synch_vector_clocks(vector_clock)
+        vector_clock_str, score = self.keeper.get_score(event_type, client_id, self.server.vector_clock_to_string())
+        self.server.synch_vector_clocks(vector_clock_str)
         return score
 
     def set_score(self, event_type, score, password):
@@ -113,19 +108,25 @@ def main(ip, port=8002, uid=1):
     server.serve_forever()
 
 if __name__ == "__main__":
-    main('localhost', 8003, 2)
-
+    # main('localhost', 8003, 2)
+    local = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "", ["run_locally=","serport="])
+        opts, args = getopt.getopt(sys.argv[1:], "lp:i:", ["run_locally","serport=","uid="])
     except getopt.error, msg:
         print msg
         sys.exit(2)
-
-    run_locally, port = [x[1] for x in opts]
-    if run_locally=="True":
+    for o, a in opts:
+        if o in ("-h", "--help"):
+            print __doc__
+            sys.exit(0)
+        elif o in ("-l", "--run_locally"):
+            local = True
+        elif o in ("-p", "--serport"):
+            port = int(a)
+        elif o in ("-i", "--uid"):
+            uid = int(a)
+    if local:
         ip = "localhost"
     else:
-        print "HOORAY"
         ip = socket.gethostbyname(socket.gethostname())
-    print port
-    main(ip = ip, port=int(port))
+    main(ip=ip, port=port, uid=uid)
