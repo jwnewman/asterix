@@ -20,16 +20,18 @@ class DBServerFunctions(ServerFunctions):
     def set_score(self, event_type, score, timestamp):
         return self.db_mgr.set_score(event_type, score, timestamp)
 
-    def get_score(self, event_type):
-        return self.db_mgr.get_score(event_type)
+    def get_score(self, event_type, client_id, vector_clock):
+        synched_clock = self.synch_vector_clocks(vector_clock)
+        self.db_mgr.check_raffle(client_id, synched_clock)
+        return synched_clock, self.db_mgr.get_medal_tally(team_name)
 
     def increment_medal_tally(self, team_name, medal_type, timestamp):
         return self.db_mgr.increment_medal_tally(team_name, medal_type, timestamp)
 
-    def get_medal_tally(self, team_name):
-        return self.db_mgr.get_medal_tally(team_name)
-
-
+    def get_medal_tally(self, team_name, client_id, vector_clock):
+        self.synch_vector_clocks(vector_clock)
+        self.db_mgr.check_raffle(client_id, synched_clock)
+        return self.server.vector_clock.copy(), self.db_mgr.get_medal_tally(team_name)
     
 class DatabaseRPCHandler(SimpleXMLRPCRequestHandler):
     rpc_paths = ('/RPC2',)
@@ -39,9 +41,9 @@ class DatabaseRPCHandler(SimpleXMLRPCRequestHandler):
         print clientIP, clientPort
         SimpleXMLRPCRequestHandler.do_POST(self)
 
-def main(ip, port=8000):
-    hosts = [('localhost', 8000), ('localhost', 8001), ('localhost', 8002)] # Fix this... this is simply the hosts of all the three servers
-    server = AsyncXMLRPCServer((ip, port), DatabaseRPCHandler, hosts)
+def main(ip, port=8000, uid=0):
+    hosts = [(ip, port), ('localhost', 8002), ('localhost', 8003)] # Fix this... this is simply the hosts of all the three servers
+    server = AsyncXMLRPCServer(uid, DatabaseRPCHandler, hosts)
     server.register_introspection_functions()
     server.register_instance(DBServerFunctions(server))
     t = threading.Timer(10, server.check_time_server)
@@ -51,7 +53,7 @@ def main(ip, port=8000):
         
 
 if __name__ == "__main__":
-    main("localhost", 8000) #TODO: Delete me
+    main("localhost", 8000, 0) #TODO: Delete me
    
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", ["run_locally=","serport="])

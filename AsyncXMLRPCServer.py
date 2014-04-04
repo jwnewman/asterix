@@ -1,24 +1,52 @@
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
-import threading
+from threading import Lock, Timer
 import socket
 import SocketServer
 import random
 import xmlrpclib
 import datetime
 import numpy as np
+# from Synchronized import synchronized, synchronized_check
+
+
+# def synchronized(lock):
+#     def wrap(f):
+#         def newFunction(*args, **kw):
+#             lock.acquire()
+#             try:
+#                 return f(*args, **kw)
+#             finally:
+#                 lock.release()
+#         return newFunction
+#     return wrap
 
 class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
-    def __init__(self, host, request_handler, hosts, uid):
+    def __init__(self, uid, request_handler, hosts):
         assert uid < len(hosts)
-        self.uid = uid
-        self.offset = 0
-        self.host = host
         self.hosts = hosts
+        self.uid = uid
+        self.host = hosts[uid]
+
+        self.offset = 0
         self.time_server_set = False
         self.global_time_server = None
         self.am_leader = False
-        self.vector_clock = np.zeros([len(hosts)])
-        SimpleXMLRPCServer.__init__(self, host, request_handler)
+
+        self.clock_lock = Lock()
+        self.vector_clock = np.zeros(len(hosts), dtype=int)
+
+        SimpleXMLRPCServer.__init__(self, self.host, request_handler)
+
+    def increment_event_count(self):
+        with self.clock_lock:
+            self.vector_clock[self.uid] += 1
+
+    # @synchronized(self.clock_lock)
+    def synch_vector_clocks(self, vector_clock):
+        with self.clock_lock:
+            self.vector_clock = np.asarray([max(i,j) for i,j in zip(self.vector_clock, vector_clock)])
+            vc_copy = self.vector_clock.copy()
+        return vc_copy
 
     def get_offset(self):
         return self.offset
@@ -32,11 +60,11 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
     def check_time_server(self):
         ack = self.check_server_activity()
         if self.am_leader:
-            t = threading.Timer(30, self.set_offset_for_processes)
+            t = Timer(5, self.set_offset_for_processes)
             t.daemon = True
             t.start()
         else:
-            t = threading.Timer(60, self.check_time_server)
+            t = Timer(10, self.check_time_server)
             t.daemon = True
             t.start()
         return ack
@@ -58,8 +86,6 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
     def get_id(self):
         return self.uid
 
-###
-
     def get_processes(self):
         processes={}
         for (server_ip, server_port) in self.hosts:
@@ -70,7 +96,9 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
                     processes[uid] = server
             except socket.error:
                 pass
+        print "*************"
         print processes
+        print "*************"
         return processes
 
     def am_leader(self):
@@ -119,7 +147,6 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
                 self.time_server_set = True
                 return True
             return False
-            
 
     def elect_leader(self):
         processes = self.get_processes()
@@ -174,7 +201,7 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
         times.pop(0)
         for i in range(len(servers)):
             servers[i].set_offset(average - times[i])
-        t = threading.Timer(30, self.set_offset_for_processes)
+        t = Timer(5, self.set_offset_for_processes)
         t.daemon = True
         t.start()
         return

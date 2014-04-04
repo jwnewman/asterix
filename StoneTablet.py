@@ -16,6 +16,7 @@ EVENTS = ["Stone Curling", "Stone Skating", "Underwater Stone Weaving", "Synchro
 class StoneTablet:
     def __init__(self, ip, port, server_ip, server_port, teams=[], events=[]):
         self.id = (ip, port)
+        self.str_id = "%s:%d"%self.id
         self.teams = teams
         self.events = events
         # print "%s:%d"%(server_ip, server_port)
@@ -34,11 +35,11 @@ class StoneTablet:
     
     # This function polls the server for the most recent medal_tally for the provided team.
     def get_medal_tally(self, team):
-        return self.server.get_medal_tally(team)
+        return self.server.get_medal_tally(team, self.str_id)
 
     # This function polls the server for the most recent score for the provided event.
     def get_score(self, event):
-        return self.server.get_score(event)
+        return self.server.get_score(event, self.str_id)
 
     # Polls the server for all of the latest scores and tallies for the events and teams that the StoneTablet follows.
     def pull(self):
@@ -101,7 +102,7 @@ class StoneTablet:
                 callback_server = SimpleXMLRPCServer(self.id, requestHandler=SimpleXMLRPCRequestHandler)
                 available_port = True
             except socket.error as err:
-                self.id = (self.id[0], random.randint(8002, 9000))
+                self.id = (self.id[0], random.randint(8005, 9000))
 
         callback_server.register_introspection_functions()
         callback_server.register_instance(self.ListenerFunctions(self.log_file, self.latency_file))
@@ -111,7 +112,7 @@ class StoneTablet:
 def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='localhost', server_port=8001, client_pull=True, pull_rate=10):
     client = StoneTablet(ip, port, server_ip, server_port, teams, events)
 
-    print client.server.get_medal_tally("Gaul")
+    print client.get_medal_tally("Gaul")
     """try:
         # Client-pull architecture
         while(client_pull):
@@ -125,10 +126,8 @@ def main(ip, port, teams = ["Gaul"], events = ["Stone Curling"], server_ip='loca
 
 if __name__ == "__main__":
 
-    main('localhost', 8002)
-
-
-    # main(ip=ip, port=port, server_ip=server_ip, server_port=8000, teams=fav_teams, events=fav_events)
+    main('localhost', 8005)
+    # main(ip=ip, port=port, server_ip=server_ip, server_port=8001, teams=fav_teams, events=fav_events)
     #main(ip=ip, port=int(port), teams=fav_teams, events=fav_events, server_ip=server_ip, server_port=int(server_port), client_pull=client_pull)
 
 

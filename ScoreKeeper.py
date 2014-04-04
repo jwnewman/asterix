@@ -12,33 +12,31 @@ TEAMS = ["Gaul", "Rome", "Carthage", "Greece", "Persia"]
 MEDALS = ["gold", "silver", "bronze"]
 EVENTS = ["Stone Curling", "Stone Skating", "Underwater Stone Weaving", "Synchronized Stone Swimming"]
 
-db_server_ip = 'localhost' #TODO: change this
-db_server_port = 8000
-
 class ScoreKeeper:
-    def __init__(self):
+    def __init__(self, db):
         self.events = {}
         self.teams = {}
         for event_name in EVENTS:
             self.events[event_name.lower()] = OlympicEvent(event_name)
         for team_name in TEAMS:
             self.teams[team_name.lower()] = Team(team_name)
-        self.db_server = xmlrpclib.ServerProxy("http://%s:%d"%(db_server_ip, db_server_port))
+        self.db = db
+        self.db_server = xmlrpclib.ServerProxy("http://%s:%d"%db)
 
-    def get_medal_tally(self, team_name):
+    def get_medal_tally(self, team_name, client_id, vector_clock):
         if team_name.lower() not in [t.lower() for t in TEAMS]:
             return "Error 8483 -- unrecognized team name:\n\t%s"%team_name
-        return self.db_server.get_medal_tally(team_name)
+        return self.db_server.get_medal_tally(team_name, client_id, vector_clock)
 
     def increment_medal_tally(self, team_name, medal_type, timestamp):
         if medal_type.lower() not in [m.lower() for m in MEDALS]:
             return "Error 15010 -- unrecognized medal metal:\n\t%s"%medal_type
         return self.db_server.increment_medal_tally(team_name, medal_type, timestamp)
 
-    def get_score(self, event_type):
+    def get_score(self, event_type, client_id, vector_clock):
         if event_type.lower() not in [e.lower() for e in EVENTS]:
             return "Error 28734 -- unrecognized event type:\n\t%s"%event_type
-        return self.db_server.get_score(event_type)
+        return self.db_server.get_score(event_type, client_id, vector_clock)
 
     def set_score(self, event_type, score, timestamp):
         if event_type.lower() not in [e.lower() for e in EVENTS]:
@@ -114,9 +112,4 @@ if __name__ == "__main__":
     print score_keeper.get_medal_tally("Gaul")
     print score_keeper.set_score("Stone Curling", "Gaul is winning!", timestamp)
     print score_keeper.get_score("Stone Curling")
-        
-
-
-
-
   

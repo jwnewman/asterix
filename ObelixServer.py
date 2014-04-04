@@ -4,7 +4,7 @@ import xmlrpclib
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 from AsyncXMLRPCServer import AsyncXMLRPCServer
 from ServerFunctions import ServerFunctions
-import threading
+from threading import Lock, Timer
 from ScoreKeeper import ScoreKeeper
 from Global import Global
 import socket
@@ -12,18 +12,26 @@ import time
 import getopt
 import os
 import sys
+import numpy as np
 
 HOST_NAME = 'localhost'
 
 class ObelixServerFunctions(ServerFunctions):
-    def __init__(self, log_file, server):
-        self.keeper = ScoreKeeper()
+    def __init__(self, log_file, server, db):
+        self.keeper = ScoreKeeper(db)
         self.secret_id = "SECRET PASSWORD LOL HOORAY"
         self.log_file = log_file
         ServerFunctions.__init__(self, server)
 
-    def get_medal_tally(self, team_name):
-        return self.keeper.get_medal_tally(team_name)
+    def get_medal_tally(self, team_name, client_id):
+        print "blah"
+        self.server.increment_event_count()
+        print "blah"
+        vector_clock, medal_tally = self.keeper.get_medal_tally(team_name, client_id, self.server.vector_clock.copy())
+        print "blah"
+        self.synch_vector_clocks(vector_clock)
+        print "blah"
+        return medal_tally
 
     def increment_medal_tally(self, team_name, medal_type, password):
         if password != self.secret_id:
@@ -32,8 +40,11 @@ class ObelixServerFunctions(ServerFunctions):
         self.push_update_for_team(self.keeper.get_registered_clients_for_team(team_name), team_name)
         return ack
 
-    def get_score(self, event_type):
-        return self.keeper.get_score(event_type)
+    def get_score(self, event_type, client_id):
+        self.server.increment_event_count()
+        vector_clock, score = self.keeper.get_score(event_type, client_id, self.server.vector_clock.copy())
+        self.synch_vector_clocks(vector_clock)
+        return score
 
     def set_score(self, event_type, score, password):
         if password != self.secret_id:
@@ -63,7 +74,6 @@ class ObelixServerFunctions(ServerFunctions):
                 self.keeper.unregister_client(client_id)
         return 1
 
-
     def push_update_for_team(self, clients, team_name):
         if len(clients)==0:
             return 0
@@ -91,19 +101,19 @@ class ObelixRPCHandler(SimpleXMLRPCRequestHandler):
         print clientIP, clientPort
         SimpleXMLRPCRequestHandler.do_POST(self)
 
-def main(ip, port=8001):
+def main(ip, port=8002, uid=1):
     log_file = open("log_server.txt", "w+", 5)
-    hosts = [('localhost', 8000), ('localhost', 8001), ('localhost', 8002)] # Fix this... this is simply the hosts of all the three servers
-    server = AsyncXMLRPCServer((ip, port), ObelixRPCHandler, hosts)
+    hosts = [('localhost', 8000), ('localhost', 8002), ('localhost', 8003)] # Fix this... this is simply the hosts of all the three servers
+    server = AsyncXMLRPCServer(uid, ObelixRPCHandler, hosts)
     server.register_introspection_functions()
-    server.register_instance(ObelixServerFunctions(log_file, server))
-    t = threading.Timer(10, server.check_time_server)
+    server.register_instance(ObelixServerFunctions(log_file, server, hosts[0]))
+    t = Timer(10, server.check_time_server)
     t.daemon = True
     t.start()
     server.serve_forever()
 
 if __name__ == "__main__":
-    main('localhost', 8001)
+    main('localhost', 8003, 2)
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", ["run_locally=","serport="])

@@ -2,33 +2,35 @@ import sqlite3
 from threading import Thread, RLock, Event
 from Global import Global
 import datetime
+from Synchronized import synchronized, synchronized_check
 
-# This wrapper wraps around functions that actually acquire locks. Any function that modifies data will acquire a lock so that no two threads
-# can enter this function at once.
-def synchronized(lock):
-    def wrap(f):
-        def newFunction(*args, **kw):
-            lock.acquire()
-            try:
-                return f(*args, **kw)
-            finally:
-                lock.release()
-        return newFunction
-    return wrap
+# # This wrapper wraps around functions that actually acquire locks. Any function that modifies data will acquire a lock so that no two threads
+# # can enter this function at once.
+# def synchronized(lock):
+#     def wrap(f):
+#         def newFunction(*args, **kw):
+#             lock.acquire()
+#             try:
+#                 return f(*args, **kw)
+#             finally:
+#                 lock.release()
+#         return newFunction
+#     return wrap
 
-# This wrapper wraps around functions that must simply wait until a lock is released. The reason for having two different functions is that
-# we want methods like get_medal_tally to be able to be accessed asynchronously, UNLESS data modification is happening. This prevents inconsistency.
-def synchronized_check(lock):
-    def wrap(f):
-        def newFunction(*args, **kw):
-            while(lock.locked()):
-                pass
-            return f(*args, **kw)
-        return newFunction
-    return wrap
+# # This wrapper wraps around functions that must simply wait until a lock is released. The reason for having two different functions is that
+# # we want methods like get_medal_tally to be able to be accessed asynchronously, UNLESS data modification is happening. This prevents inconsistency.
+# def synchronized_check(lock):
+#     def wrap(f):
+#         def newFunction(*args, **kw):
+#             while(lock.locked()):
+#                 pass
+#             return f(*args, **kw)
+#         return newFunction
+#     return wrap
 
 class DatabaseManager:
     def __init__(self):
+        self.raffle_entries = {}
         self.conn = sqlite3.connect('scores.db', check_same_thread = False)
         with self.conn:
             self.cur = self.conn.cursor()
@@ -46,6 +48,18 @@ class DatabaseManager:
         with self.conn:
             self.cur.execute("INSERT INTO OlympicEvents VALUES(?, ?, ?)", olympic_event)
         return
+
+    def check_raffle(self, client_id, vector_clock):
+        if sum(vector_clock)%10==0:
+            self.enter_raffle_contestant(client_id, sum(vector_clock))
+
+    @synchronized(Global.raffle_lock)
+    def enter_raffle_contestant(self, client_id, entry_num):
+        if entry_num not in self.raffle_entries:
+            self.raffle_entries[entry_num] = client_id
+            return "Successfully entered %s as the %dth contestant!"%(client_id, entry_num)
+        else:
+            return "No, sorry: %dth contestant already entered."%(entry_num)
 
     @synchronized(Global.medal_lock)
     def increment_medal_tally(self, team_name, medal_type, timestamp):

@@ -8,3 +8,4 @@ class Global:
     medal_lock = Lock()
     score_lock = Lock()
     client_lock = Lock()
+    raffle_lock = Lock()
