@@ -1,12 +1,11 @@
 # Change to correct directory containing source files
 src_dir=.
-server_ip='localhost'
-server_port=8000
 
-# Begin Olympic games and Cacofonix updates
-cacofonix_port=8001
+# Start-up database
+python $src_dir/DatabaseServer.py --uid=0 --serport=8000 -l
 
-mode=random
-update_rate=4
+# Start-up Cacofonix updates
+python $src_dir/Cacofonix.py --port=8004 --serport=8001 -l
 
-python $src_dir/Cacofonix.py --port $cacofonix_port --serip $server_ip --serport $server_port --mode $mode --rate $update_rate
+
+

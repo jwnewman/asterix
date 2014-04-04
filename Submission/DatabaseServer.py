@@ -100,7 +100,7 @@ def main(ip, port=8000, uid=0):
 if __name__ == "__main__":
     local = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "lp:i:", ["run_locally","serport=","uid="])
+        opts, args = getopt.getopt(sys.argv[1:], "lp:i:", ["run_locally","port=","uid="])
     except getopt.error, msg:
         print msg
         sys.exit(2)
@@ -110,7 +110,7 @@ if __name__ == "__main__":
             sys.exit(0)
         elif o in ("-l", "--run_locally"):
             local = True
-        elif o in ("-p", "--serport"):
+        elif o in ("-p", "--port"):
             port = int(a)
         elif o in ("-i", "--uid"):
             uid = int(a)

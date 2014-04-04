@@ -156,7 +156,7 @@ class ObelixRPCHandler(SimpleXMLRPCRequestHandler):
 
 def main(ip, port=8002, uid=1):
     log_file = open("log_server.txt", "w+", 5)
-    hosts = [('localhost', 8000), ('localhost', 8002), ('localhost', 8003)] # Fix this... this is simply the hosts of all the three servers
+    hosts = [('localhost', 8000), ('localhost', 8002), ('localhost', 8003)]
     server = AsyncXMLRPCServer(uid, ObelixRPCHandler, hosts)
     server.register_introspection_functions()
     server.register_instance(ObelixServerFunctions(log_file, server, hosts[0]))
@@ -168,7 +168,7 @@ def main(ip, port=8002, uid=1):
 if __name__ == "__main__":
     local = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "lp:i:", ["run_locally","serport=","uid="])
+        opts, args = getopt.getopt(sys.argv[1:], "lp:i:", ["run_locally","port=","uid="])
     except getopt.error, msg:
         print msg
         sys.exit(2)
@@ -178,7 +178,7 @@ if __name__ == "__main__":
             sys.exit(0)
         elif o in ("-l", "--run_locally"):
             local = True
-        elif o in ("-p", "--serport"):
+        elif o in ("-p", "--port"):
             port = int(a)
         elif o in ("-i", "--uid"):
             uid = int(a)
