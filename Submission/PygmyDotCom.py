@@ -29,11 +29,9 @@ class PygmyServerFunctions:
     It implements a simple load-balancing scheme to spread requests between the frontends.
 
     Arguments:
-    db -- (ip, host) tuple which is the address of the database server.
     frontends -- list of (ip, host) tuples which are the addresses of the frontends. 
     """
-    def __init__(self, db, frontends):
-        self.db = db
+    def __init__(self, frontends):
         self.frontends = frontends
         self.event_count = 0 # strictly for testing
 
@@ -147,18 +145,16 @@ class PygmyRPCHandler(SimpleXMLRPCRequestHandler):
         print clientIP, clientPort
         SimpleXMLRPCRequestHandler.do_POST(self)
 
-def main(ip, port=8001):
-    db = ('localhost', 8000)
-    frontends = [('localhost', 8002), ('localhost', 8003)]
+def main(ip, port=8001, frontends=[('localhost', 8002), ('localhost', 8003)]):
     server = PygmyServer((ip, port), PygmyRPCHandler)
     server.register_introspection_functions()
-    server.register_instance(PygmyServerFunctions(db, frontends))
+    server.register_instance(PygmyServerFunctions(frontends))
     server.serve_forever()
 
 if __name__ == "__main__":
     local = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "lp:", ["run_locally","port="])
+        opts, args = getopt.getopt(sys.argv[1:], "lp:i:x:y:", ["run_locally","port=","uid=","xhost=","yhost="])
     except getopt.error, msg:
         print msg
         sys.exit(2)
@@ -170,8 +166,20 @@ if __name__ == "__main__":
             local = True
         elif o in ("-p", "--port"):
             port = int(a)
+        elif o in ("-i", "--uid"):
+            uid = int(a)
+        elif o in ("-x", "--xhost"):
+            xip, xport = a.split(":")
+            xport = int(xport)
+        elif o in ("-y", "--yhost"):
+            yip, yport = a.split(":")
+            yport = int(yport)
     if local:
         ip = "localhost"
+        xip = "localhost"
+        xport = 8002
+        yip = "localhost"
+        yport = 8003
     else:
         ip = socket.gethostbyname(socket.gethostname())
-    main(ip=ip, port=port)
+    main(ip=ip, port=port, frontends =[(xip, xport), (yip, yport)])

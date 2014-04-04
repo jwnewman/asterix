@@ -30,12 +30,10 @@ class Cacofonix:
     """Cacofonix real-time updates about Olympic teams and events to Pygmy.com.
 
     Arguments:
-    port -- Int for StoneTablet's port.
     server_ip -- String for IP address for the Pygmy.com server.
     server_port -- Int for Port for the Pygmy.com server.
     """
-    def __init__(self, port, server_ip, server_port):
-        self.port = port
+    def __init__(self, server_ip, server_port):
         self.secret_id = "SECRET PASSWORD LOL HOORAY"
         self.server = xmlrpclib.ServerProxy("http://%s:%d"%(server_ip, server_port))
         self.log_file = open("log_cacofonix.txt", "w+", 5)
@@ -68,9 +66,9 @@ class Cacofonix:
         print ack
         self.log_file.write("%s\n"%ack)
 
-def main(port=8004, server_ip='localhost', server_port=8000, update_rate=5):
+def main(server_ip='localhost', server_port=8000, update_rate=5):
     """Main method that randomly simulates Olympic games and sends Cacofonix updates to Pygmy.com"""
-    fonix = Cacofonix(port = port, server_ip = server_ip, server_port = server_port)
+    fonix = Cacofonix(server_ip = server_ip, server_port = server_port)
     while(True):
         try:
             time.sleep(random.random()*update_rate)
@@ -90,7 +88,7 @@ def main(port=8004, server_ip='localhost', server_port=8000, update_rate=5):
 if __name__ == "__main__":
     local = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ln:i:p:", ["run_locally","port=","serip=","serport="])
+        opts, args = getopt.getopt(sys.argv[1:], "li:p:", ["run_locally","serip=","serport="])
     except getopt.error, msg:
         print msg
         sys.exit(2)
@@ -100,13 +98,12 @@ if __name__ == "__main__":
             sys.exit(0)
         elif o in ("-l", "--run_locally"):
             local = True
-        elif o in ("-n", "--port"):
-            port = int(a)
         elif o in ("-i", "--serip"):
             server_ip = a
         elif o in ("-p", "--serport"):
             server_port = int(a)
     if local:
         server_ip = "localhost"
-
-    main(port=port, server_ip=server_ip, server_port=server_port)
+        server_port = 8001
+        
+    main(server_ip=server_ip, server_port=server_port)
