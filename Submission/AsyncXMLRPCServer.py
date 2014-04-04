@@ -150,7 +150,6 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
 
         Returns a string representing the outcome.
         """
-        print self.global_time_server
         if (self.am_leader == True):
             return "Time server connected."
         elif (self.time_server_set == False):
