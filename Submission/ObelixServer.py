@@ -64,7 +64,7 @@ class ObelixServerFunctions(ServerFunctions):
         if password != self.secret_id:
             return "Unauthorized entry attempt."
         ack = self.keeper.increment_medal_tally(team_name, medal_type, self.get_timestamp())
-        self.push_update_for_team(self.keeper.get_registered_clients_for_team(team_name), team_name)
+        #self.push_update_for_team(self.keeper.get_registered_clients_for_team(team_name), team_name)
         return ack
 
     def get_score(self, event_type, client_id):
@@ -100,7 +100,7 @@ class ObelixServerFunctions(ServerFunctions):
         if password != self.secret_id:
             return "Unauthorized entry attempt."
         ack = self.keeper.set_score(event_type, score, self.get_timestamp())
-        self.push_update_for_event(self.keeper.get_registered_clients_for_event(event_type), event_type)
+        #self.push_update_for_event(self.keeper.get_registered_clients_for_event(event_type), event_type)
         return ack
 
 # --------------------------------------------------------------------
@@ -151,7 +151,6 @@ class ObelixRPCHandler(SimpleXMLRPCRequestHandler):
 
     def do_POST(self):
         clientIP, clientPort = self.client_address
-        print clientIP, clientPort
         SimpleXMLRPCRequestHandler.do_POST(self)
 
 def main(ip, port=8002, uid=1, db=('localhost', 8000), other_host=('localhost', 8003)):
@@ -166,7 +165,7 @@ def main(ip, port=8002, uid=1, db=('localhost', 8000), other_host=('localhost', 
     server.serve_forever()
 
 if __name__ == "__main__":
-    local = False
+    local = True
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lp:i:d:z:", ["run_locally","port=","uid=","dbhost=","zhost="])
     except getopt.error, msg:

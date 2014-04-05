@@ -35,8 +35,9 @@ class Cacofonix:
     """
     def __init__(self, server_ip, server_port):
         self.secret_id = "SECRET PASSWORD LOL HOORAY"
-        self.server = xmlrpclib.ServerProxy("http://%s:%d"%(server_ip, server_port))
         self.log_file = open("log_cacofonix.txt", "w+", 5)
+        self.server_ip = server_ip
+        self.server_port = server_port
 
     def set_score(self, event_type, score):
         """Sets the score for a given event via RPC to Pygmy.com.
@@ -47,10 +48,14 @@ class Cacofonix:
         event_type -- String for one of the Olympic events.
         score -- String for the updated score.
         """
+        server = xmlrpclib.ServerProxy("http://%s:%d"%(self.server_ip, self.server_port))
         self.log_file.write("------Received Olympic Event Update: %s------\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
-        ack = self.server.set_score(event_type, score, self.secret_id)
-        print ack
-        self.log_file.write("%s\n"%ack)
+        try:
+            ack = server.set_score(event_type, score, self.secret_id)
+            print ack
+            self.log_file.write("%s\n"%ack)
+        except:
+            pass
 
     def increment_medal_tally(self, team_name, medal_type):
         """Increments the medal tally for a given team via RPC to Pygmy.com.
@@ -62,9 +67,13 @@ class Cacofonix:
         medal_type -- String for the type of medal to increment.
         """
         self.log_file.write("------Received Olympic Medal Update: %s------\n"%time.strftime("%d %b %Y %H:%M:%S", time.gmtime()))
-        ack = self.server.increment_medal_tally(team_name, medal_type, self.secret_id)
-        print ack
-        self.log_file.write("%s\n"%ack)
+        server = xmlrpclib.ServerProxy("http://%s:%d"%(self.server_ip, self.server_port))
+        try:
+            ack = server.increment_medal_tally(team_name, medal_type, self.secret_id)
+            print ack
+            self.log_file.write("%s\n"%ack)
+        except:
+            pass
 
 def main(server_ip='localhost', server_port=8000, update_rate=5):
     """Main method that randomly simulates Olympic games and sends Cacofonix updates to Pygmy.com"""

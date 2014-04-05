@@ -98,7 +98,7 @@ def main(ip, port=8000, uid=0, frontends=[('localhost', 8002), ('localhost', 800
     server.serve_forever()
 
 if __name__ == "__main__":
-    local = False
+    local = True
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lp:i:x:y:", ["run_locally","port=","uid=","xhost=","yhost="])
 
@@ -121,6 +121,8 @@ if __name__ == "__main__":
         elif o in ("-y", "--yhost"):
             yip, yport = a.split(":")
             yport = int(yport)
+    port = 8000
+    uid = 0
     if local:
         ip = "localhost"
         xip = "localhost"
@@ -129,5 +131,7 @@ if __name__ == "__main__":
         yport = 8003
     else:
         ip = socket.gethostbyname(socket.gethostname())
+    port = 8000
+    uid = 0
     main(ip=ip, port=port, uid=uid, frontends =[(xip, xport), (yip, yport)])
 

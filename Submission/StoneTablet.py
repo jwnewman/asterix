@@ -32,8 +32,8 @@ class StoneTablet:
         self.str_id = "%s:%d"%self.id
         self.teams = teams
         self.events = events
-        self.server = xmlrpclib.ServerProxy("http://%s:%d"%(server_ip, server_port))
-        print self.server
+        self.server_ip = server_ip
+        self.server_port = server_port
         # -----------------------------------------------------------
         # Below are logging and latency vars (deprecated for Lab #2).
         # -----------------------------------------------------------
@@ -52,7 +52,11 @@ class StoneTablet:
         Arguments:
         team_name -- String for one of the Olympic teams.
         """
-        return self.server.get_medal_tally(team_name, self.str_id)
+        server = xmlrpclib.ServerProxy("http://%s:%d"%(self.server_ip, self.server_port))
+        try:
+            return server.get_medal_tally(team_name, self.str_id)
+        except:
+            return self.get_medal_tally(team_name)
 
     def get_score(self, event_type):
         """Returns the current score for a given event via RPC to Pygmy.com.
@@ -60,7 +64,11 @@ class StoneTablet:
         Arguments:
         event_type -- String for one of the Olympic events.
         """
-        return self.server.get_score(event_type, self.str_id)
+        server = xmlrpclib.ServerProxy("http://%s:%d"%(self.server_ip, self.server_port))
+        try:
+            return server.get_score(event_type, self.str_id)
+        except:
+            return self.get_score(event_type)
 
     def pull(self):
         """Performs a client-pull for updates on all of the teams and events the client follows.
