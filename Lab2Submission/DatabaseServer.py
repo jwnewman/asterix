@@ -131,7 +131,5 @@ if __name__ == "__main__":
         yport = 8003
     else:
         ip = socket.gethostbyname(socket.gethostname())
-    port = 8000
-    uid = 0
     main(ip=ip, port=port, uid=uid, frontends =[(xip, xport), (yip, yport)])
 
