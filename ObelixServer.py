@@ -186,7 +186,7 @@ if __name__ == "__main__":
             db_port = int(db_port)
         elif o in ("-z", "--zhost"):
             z_ip, z_port = a.split(":")
-            z_port = int(yport)
+            z_port = int(z_port)
     if local:
         ip = "localhost"
         z_ip = "localhost"
