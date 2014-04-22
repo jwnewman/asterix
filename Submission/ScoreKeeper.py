@@ -28,7 +28,6 @@ class ScoreKeeper:
         for team_name in TEAMS:
             self.teams[team_name.lower()] = Team(team_name)
         self.db = db
-        self.db_server = xmlrpclib.ServerProxy("http://%s:%d"%db)
 
     def get_medal_tally(self, team_name, client_id, vector_clock_str):
         """Returns the current medal tally for a given team via RPC to the DB Server.
@@ -40,9 +39,10 @@ class ScoreKeeper:
         client_id -- Unique string ID of the initial requesting client (used for raffle).
         vector_clock_str -- String representation of the vector clock of the frontend server.
         """
+        db_server = xmlrpclib.ServerProxy("http://%s:%d"%self.db)
         if team_name.lower() not in [t.lower() for t in TEAMS]:
             return "Error 8483 -- unrecognized team name:\n\t%s"%team_name
-        return self.db_server.get_medal_tally(team_name, client_id, vector_clock_str)
+        return db_server.get_medal_tally(team_name, client_id, vector_clock_str)
 
     def increment_medal_tally(self, team_name, medal_type, timestamp):
         """Increments the medal tally for a given team via RPC to the DB Server.
@@ -54,9 +54,10 @@ class ScoreKeeper:
         medal_type -- String for the type of medal to increment.
         timestamp -- Time of the update.
         """
+        db_server = xmlrpclib.ServerProxy("http://%s:%d"%self.db)
         if medal_type.lower() not in [m.lower() for m in MEDALS]:
             return "Error 15010 -- unrecognized medal metal:\n\t%s"%medal_type
-        return self.db_server.increment_medal_tally(team_name, medal_type, timestamp)
+        return db_server.increment_medal_tally(team_name, medal_type, timestamp)
 
     def get_score(self, event_type, client_id, vector_clock_str):
         """Returns the current score for a given event via RPC to the DB Server.
@@ -68,9 +69,10 @@ class ScoreKeeper:
         client_id -- Unique string ID of the initial requesting client (used for raffle).
         vector_clock_str -- String representation of the vector clock of the frontend server.
         """
+        db_server = xmlrpclib.ServerProxy("http://%s:%d"%self.db)
         if event_type.lower() not in [e.lower() for e in EVENTS]:
             return "Error 28734 -- unrecognized event type:\n\t%s"%event_type
-        return self.db_server.get_score(event_type, client_id, vector_clock_str)
+        return db_server.get_score(event_type, client_id, vector_clock_str)
 
     def set_score(self, event_type, score, timestamp):
         """Sets the score for a given event via RPC to the DB Server.
@@ -82,9 +84,10 @@ class ScoreKeeper:
         score -- String for the updated score.
         timestamp -- Time of the update.
         """
+        db_server = xmlrpclib.ServerProxy("http://%s:%d"%self.db)
         if event_type.lower() not in [e.lower() for e in EVENTS]:
             return "Error 5 -- unrecognized event type:\n\t%s"%event_type
-        return self.db_server.set_score(event_type, score, timestamp)
+        return db_server.set_score(event_type, score, timestamp)
 
 # --------------------------------------------------------------------
 # All functions below are for server-push mode (deprecated for Lab #2).
