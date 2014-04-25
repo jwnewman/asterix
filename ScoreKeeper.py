@@ -21,12 +21,11 @@ class ScoreKeeper:
     db -- (ip, port) tuple which is the address of the database server.
     """
     def __init__(self, db):
-        self.events = {}
-        self.teams = {}
+        self.cache = {}
         for event_name in EVENTS:
-            self.events[event_name.lower()] = OlympicEvent(event_name)
+            self.cache[event_name.lower()] = ""
         for team_name in TEAMS:
-            self.teams[team_name.lower()] = Team(team_name)
+            self.cache[team_name.lower()] = ""
         self.db = db
 
     def get_medal_tally(self, team_name, client_id, vector_clock_str):
@@ -42,9 +41,14 @@ class ScoreKeeper:
         db_server = xmlrpclib.ServerProxy("http://%s:%d"%self.db)
         if team_name.lower() not in [t.lower() for t in TEAMS]:
             return "Error 8483 -- unrecognized team name:\n\t%s"%team_name
-        return db_server.get_medal_tally(team_name, client_id, vector_clock_str)
+        if self.cache[team_name.lower()] == "":
+            tally = db_server.get_medal_tally(team_name, client_id, vector_clock_str)
+            self.cache[team_name.lower()] = tally
+            return tally
+        else:
+            return self.cache[team_name.lower()]
 
-    def increment_medal_tally(self, team_name, medal_type, timestamp):
+    def increment_medal_tally(self, team_name, medal_type, timestamp, invalidate_cache=True):
         """Increments the medal tally for a given team via RPC to the DB Server.
 
         Always called by one of the frontend servers on behalf of a Cacofonix update.
@@ -57,6 +61,8 @@ class ScoreKeeper:
         db_server = xmlrpclib.ServerProxy("http://%s:%d"%self.db)
         if medal_type.lower() not in [m.lower() for m in MEDALS]:
             return "Error 15010 -- unrecognized medal metal:\n\t%s"%medal_type
+        if invalidate_cache:
+            self.cache[team_name.lower()] = ""
         return db_server.increment_medal_tally(team_name, medal_type, timestamp)
 
     def get_score(self, event_type, client_id, vector_clock_str):
@@ -72,9 +78,16 @@ class ScoreKeeper:
         db_server = xmlrpclib.ServerProxy("http://%s:%d"%self.db)
         if event_type.lower() not in [e.lower() for e in EVENTS]:
             return "Error 28734 -- unrecognized event type:\n\t%s"%event_type
-        return db_server.get_score(event_type, client_id, vector_clock_str)
 
-    def set_score(self, event_type, score, timestamp):
+        if self.cache[event_type.lower()] == "":
+            score = db_server.get_score(event_type, client_id, vector_clock_str)
+            self.cache[event_type.lower()] = score
+            return score
+        else:
+            print self.cache
+            return self.cache[event_type.lower()]
+
+    def set_score(self, event_type, score, timestamp, invalidate_cache=True):
         """Sets the score for a given event via RPC to the DB Server.
 
         Always called by one of the frontend servers on behalf of a Cacofonix update.
@@ -87,6 +100,8 @@ class ScoreKeeper:
         db_server = xmlrpclib.ServerProxy("http://%s:%d"%self.db)
         if event_type.lower() not in [e.lower() for e in EVENTS]:
             return "Error 5 -- unrecognized event type:\n\t%s"%event_type
+        if invalidate_cache:
+            self.cache[event_type.lower()] = ""
         return db_server.set_score(event_type, score, timestamp)
 
 # --------------------------------------------------------------------
@@ -152,13 +167,13 @@ class ScoreKeeper:
         return self.teams[team_name.lower()].get_clients()
 
 if __name__ == "__main__":
-    score_keeper = ScoreKeeper()
+    score_keeper = ScoreKeeper(('localhost', 8000))
 
     t = datetime.datetime.now().time()
     timestamp = t.strftime('%H:%M:%S')
 
     print score_keeper.increment_medal_tally("Gaul", "gold", timestamp)
-    print score_keeper.get_medal_tally("Gaul")
+    print score_keeper.get_medal_tally("Gaul", "randomclient", "")
     print score_keeper.set_score("Stone Curling", "Gaul is winning!", timestamp)
-    print score_keeper.get_score("Stone Curling")
+    print score_keeper.get_score("Stone Curling", "randomclient", "")
   

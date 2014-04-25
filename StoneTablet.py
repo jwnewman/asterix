@@ -53,10 +53,7 @@ class StoneTablet:
         team_name -- String for one of the Olympic teams.
         """
         server = xmlrpclib.ServerProxy("http://%s:%d"%(self.server_ip, self.server_port))
-        try:
-            return server.get_medal_tally(team_name, self.str_id)
-        except:
-            return self.get_medal_tally(team_name)
+        return server.get_medal_tally(team_name, self.str_id)
 
     def get_score(self, event_type):
         """Returns the current score for a given event via RPC to Pygmy.com.
@@ -65,10 +62,7 @@ class StoneTablet:
         event_type -- String for one of the Olympic events.
         """
         server = xmlrpclib.ServerProxy("http://%s:%d"%(self.server_ip, self.server_port))
-        try:
-            return server.get_score(event_type, self.str_id)
-        except:
-            return self.get_score(event_type)
+        return server.get_score(event_type, self.str_id)
 
     def pull(self):
         """Performs a client-pull for updates on all of the teams and events the client follows.
