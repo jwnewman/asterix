@@ -25,11 +25,20 @@ class ObelixServerFunctions(ServerFunctions):
     server -- The active server object implementing these methods.
     db -- (ip, port) tuple which is the address of the database server.
     """
-    def __init__(self, log_file, server, db):
+    def __init__(self, log_file, cache_pull_mode, server, db):
         self.keeper = ScoreKeeper(db)
         self.secret_id = "SECRET PASSWORD LOL HOORAY"
         self.log_file = log_file
+        self.cache_pull_mode = cache_pull_mode
+        self.invalidate_cache = True
         ServerFunctions.__init__(self, server)
+        if (self.cache_pull_mode):
+            self.update_cache()
+            self.invalidate_cache = False
+
+    def update_cache(self):
+        self.keeper.update_cache()
+
 
     def get_medal_tally(self, team_name, client_id):
         """Returns current medal tally for a given team via RPC to ScoreKeeper.
@@ -44,9 +53,7 @@ class ObelixServerFunctions(ServerFunctions):
         team_name -- String for one of the Olympic teams.
         client_id -- Unique string ID of the initial requesting client (used for raffle).
         """
-        self.server.increment_event_count()
-        vector_clock_str, medal_tally = self.keeper.get_medal_tally(team_name, client_id, self.server.vector_clock_string())
-        self.server.sync_with_vector_clock(vector_clock_str)
+        medal_tally = self.keeper.get_medal_tally(team_name, client_id)
         return medal_tally
 
     def increment_medal_tally(self, team_name, medal_type, password):
@@ -63,7 +70,7 @@ class ObelixServerFunctions(ServerFunctions):
         """
         if password != self.secret_id:
             return "Unauthorized entry attempt."
-        ack = self.keeper.increment_medal_tally(team_name, medal_type, self.get_timestamp())
+        ack = self.keeper.increment_medal_tally(team_name, medal_type, self.get_timestamp(), self.invalidate_cache)
         #self.push_update_for_team(self.keeper.get_registered_clients_for_team(team_name), team_name)
         return ack
 
@@ -80,9 +87,7 @@ class ObelixServerFunctions(ServerFunctions):
         event_type -- String for one of the Olympic events.
         client_id -- Unique string ID of the requesting client (used for raffle).
         """
-        self.server.increment_event_count()
-        vector_clock_str, score = self.keeper.get_score(event_type, client_id, self.server.vector_clock_string())
-        self.server.sync_with_vector_clock(vector_clock_str)
+        score = self.keeper.get_score(event_type, client_id)
         return score
 
     def set_score(self, event_type, score, password):
@@ -99,7 +104,7 @@ class ObelixServerFunctions(ServerFunctions):
         """
         if password != self.secret_id:
             return "Unauthorized entry attempt."
-        ack = self.keeper.set_score(event_type, score, self.get_timestamp())
+        ack = self.keeper.set_score(event_type, score, self.get_timestamp(), self.invalidate_cache)
         #self.push_update_for_event(self.keeper.get_registered_clients_for_event(event_type), event_type)
         return ack
 
@@ -153,21 +158,22 @@ class ObelixRPCHandler(SimpleXMLRPCRequestHandler):
         clientIP, clientPort = self.client_address
         SimpleXMLRPCRequestHandler.do_POST(self)
 
-def main(ip, port=8002, uid=1, db=('localhost', 8000), other_host=('localhost', 8003)):
+def main(ip, port=8002, uid=1, cache_pull_mode=False, db=('localhost', 8000), other_host=('localhost', 8003)):
     log_file = open("log_server.txt", "w+", 5)
     hosts = [('localhost', 8000), ('localhost', 8002), ('localhost', 8003)]
     server = AsyncXMLRPCServer(uid, ObelixRPCHandler, hosts)
     server.register_introspection_functions()
-    server.register_instance(ObelixServerFunctions(log_file, server, hosts[0]))
-    t = Timer(10, server.check_time_server)
-    t.daemon = True
-    t.start()
+    server.register_instance(ObelixServerFunctions(log_file, cache_pull_mode, server, hosts[0]))
+#    t = Timer(10, server.check_time_server)
+#    t.daemon = True
+#    t.start()
     server.serve_forever()
 
 if __name__ == "__main__":
     local = True
+    cache_pull_mode = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "lp:i:d:z:", ["run_locally","port=","uid=","dbhost=","zhost="])
+        opts, args = getopt.getopt(sys.argv[1:], "lp:i:d:z:c", ["run_locally","port=","uid=","dbhost=","zhost="])
     except getopt.error, msg:
         print msg
         sys.exit(2)
@@ -187,6 +193,8 @@ if __name__ == "__main__":
         elif o in ("-z", "--zhost"):
             z_ip, z_port = a.split(":")
             z_port = int(z_port)
+        elif o in ("-c", "--cache_pull"):
+            cache_pull_mode = True
     if local:
         ip = "localhost"
         z_ip = "localhost"
@@ -195,4 +203,4 @@ if __name__ == "__main__":
         db_port = 8000
     else:
         ip = socket.gethostbyname(socket.gethostname())
-    main(ip=ip, port=port, uid=uid, db=(db_ip, db_port), other_host=(z_ip, z_port))
+    main(ip=ip, port=port, uid=uid, cache_pull_mode=cache_pull_mode, db=(db_ip, db_port), other_host=(z_ip, z_port))

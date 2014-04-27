@@ -6,6 +6,7 @@ from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 from Team import Team
 from OlympicEvent import OlympicEvent
 import datetime
+from threading import Timer
 
 TEAMS = ["Gaul", "Rome", "Carthage", "Greece", "Persia"]
 MEDALS = ["gold", "silver", "bronze"]
@@ -28,7 +29,7 @@ class ScoreKeeper:
             self.cache[team_name.lower()] = ""
         self.db = db
 
-    def get_medal_tally(self, team_name, client_id, vector_clock_str):
+    def get_medal_tally(self, team_name, client_id):
         """Returns the current medal tally for a given team via RPC to the DB Server.
 
         Always called by one of the frontend servers on behalf of a requesting client.
@@ -42,13 +43,13 @@ class ScoreKeeper:
         if team_name.lower() not in [t.lower() for t in TEAMS]:
             return "Error 8483 -- unrecognized team name:\n\t%s"%team_name
         if self.cache[team_name.lower()] == "":
-            tally = db_server.get_medal_tally(team_name, client_id, vector_clock_str)
+            tally = db_server.get_medal_tally(team_name.lower(), client_id)
             self.cache[team_name.lower()] = tally
             return tally
         else:
             return self.cache[team_name.lower()]
 
-    def increment_medal_tally(self, team_name, medal_type, timestamp, invalidate_cache=True):
+    def increment_medal_tally(self, team_name, medal_type, timestamp, invalidate_cache=False):
         """Increments the medal tally for a given team via RPC to the DB Server.
 
         Always called by one of the frontend servers on behalf of a Cacofonix update.
@@ -63,9 +64,9 @@ class ScoreKeeper:
             return "Error 15010 -- unrecognized medal metal:\n\t%s"%medal_type
         if invalidate_cache:
             self.cache[team_name.lower()] = ""
-        return db_server.increment_medal_tally(team_name, medal_type, timestamp)
+        return db_server.increment_medal_tally(team_name.lower(), medal_type, timestamp)
 
-    def get_score(self, event_type, client_id, vector_clock_str):
+    def get_score(self, event_type, client_id):
         """Returns the current score for a given event via RPC to the DB Server.
 
         Always called by one of the frontend servers on behalf of a requesting client.
@@ -80,14 +81,13 @@ class ScoreKeeper:
             return "Error 28734 -- unrecognized event type:\n\t%s"%event_type
 
         if self.cache[event_type.lower()] == "":
-            score = db_server.get_score(event_type, client_id, vector_clock_str)
+            score = db_server.get_score(event_type.lower(), client_id)
             self.cache[event_type.lower()] = score
             return score
         else:
-            print self.cache
             return self.cache[event_type.lower()]
 
-    def set_score(self, event_type, score, timestamp, invalidate_cache=True):
+    def set_score(self, event_type, score, timestamp, invalidate_cache=False):
         """Sets the score for a given event via RPC to the DB Server.
 
         Always called by one of the frontend servers on behalf of a Cacofonix update.
@@ -102,7 +102,26 @@ class ScoreKeeper:
             return "Error 5 -- unrecognized event type:\n\t%s"%event_type
         if invalidate_cache:
             self.cache[event_type.lower()] = ""
-        return db_server.set_score(event_type, score, timestamp)
+        return db_server.set_score(event_type.lower(), score, timestamp)
+
+    def update_cache(self):
+        print "Updating the cache"
+        db_server = xmlrpclib.ServerProxy("http://%s:%d"%self.db)
+        for name,value in self.cache.iteritems():
+            if name.lower() in [t.lower() for t in TEAMS]:
+                if not value == "" and not db_server.get_medal_tally(name, "") == value:
+                    print name + "'s tally was out of date and has been invalidated."
+                    self.cache[name] = ""
+            else:
+                if not value == "" and not db_server.get_score(name, "") == value:
+                    print name + "'s score was out of date and has been invalidated."
+                    self.cache[name] = ""
+        t = Timer(10, self.update_cache)
+        t.daemon = True
+        t.start()
+        return
+            
+        
 
 # --------------------------------------------------------------------
 # All functions below are for server-push mode (deprecated for Lab #2).
@@ -172,8 +191,8 @@ if __name__ == "__main__":
     t = datetime.datetime.now().time()
     timestamp = t.strftime('%H:%M:%S')
 
-    print score_keeper.increment_medal_tally("Gaul", "gold", timestamp)
     print score_keeper.get_medal_tally("Gaul", "randomclient", "")
+    print score_keeper.get_medal_tally("Greece", "randomclient", "")
     print score_keeper.set_score("Stone Curling", "Gaul is winning!", timestamp)
     print score_keeper.get_score("Stone Curling", "randomclient", "")
   

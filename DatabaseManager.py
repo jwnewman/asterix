@@ -20,9 +20,9 @@ class DatabaseManager:
         self.raffle_entries = {}
         self.conn = sqlite3.connect('scores.db', check_same_thread = False)
         with self.conn:
-            self.cur = self.conn.cursor()
-            self.cur.execute("CREATE TABLE IF NOT EXISTS Teams(Name TEXT, Gold_Medals INT, Silver_Medals INT, Bronze_Medals INT, Timestamp TEXT)")
-            self.cur.execute("CREATE TABLE IF NOT EXISTS OlympicEvents(Type TEXT, Score TEXT, Timestamp TEXT)")
+            cur = self.conn.cursor()
+            cur.execute("CREATE TABLE IF NOT EXISTS Teams(Name TEXT, Gold_Medals INT, Silver_Medals INT, Bronze_Medals INT, Timestamp TEXT)")
+            cur.execute("CREATE TABLE IF NOT EXISTS OlympicEvents(Type TEXT, Score TEXT, Timestamp TEXT)")
             for team_name in TEAMS:
                 self.insert_team_into_db(team_name.lower())
             for event_type in EVENTS:
@@ -50,7 +50,8 @@ class DatabaseManager:
         """
         team = (team_name, 0, 0, 0, '')
         with self.conn:
-            self.cur.execute("INSERT INTO Teams VALUES(?, ?, ?, ?, ?)", team)
+            cur = self.conn.cursor()
+            cur.execute("INSERT INTO Teams VALUES(?, ?, ?, ?, ?)", team)
         return
 
     def insert_olympic_event_into_db(self, event_type):
@@ -61,7 +62,8 @@ class DatabaseManager:
         """
         olympic_event = (event_type, 'No score yet!', '')
         with self.conn:
-            self.cur.execute("INSERT INTO OlympicEvents VALUES(?, ?, ?)", olympic_event)
+            cur = self.conn.cursor()
+            cur.execute("INSERT INTO OlympicEvents VALUES(?, ?, ?)", olympic_event)
         return
 
     @synchronized(Global.medal_lock)
@@ -76,16 +78,17 @@ class DatabaseManager:
         timestamp -- Time of the update.
         """
         with self.conn:
-            self.cur.execute("SELECT * FROM Teams WHERE Name=?", (team_name,))
-            data = self.cur.fetchone()
+            cur = self.conn.cursor()
+            cur.execute("SELECT * FROM Teams WHERE Name=?", (team_name,))
+            data = cur.fetchone()
             if (data is None):
                 self.insert_team_into_db(team_name)
             if (medal_type == 'gold'):
-                self.cur.execute("UPDATE Teams SET Gold_Medals=Gold_Medals+1, Timestamp=? WHERE Name=?", (timestamp, team_name))
+                cur.execute("UPDATE Teams SET Gold_Medals=Gold_Medals+1, Timestamp=? WHERE Name=?", (timestamp, team_name))
             elif (medal_type == 'silver'):
-                self.cur.execute("UPDATE Teams SET Silver_Medals=Silver_Medals+1, Timestamp=? WHERE Name=?", (timestamp, team_name))
+                cur.execute("UPDATE Teams SET Silver_Medals=Silver_Medals+1, Timestamp=? WHERE Name=?", (timestamp, team_name))
             elif (medal_type == 'bronze'):
-                self.cur.execute("UPDATE Teams SET Bronze_Medals=Bronze_Medals+1, Timestamp=? WHERE Name=?", (timestamp, team_name))
+                cur.execute("UPDATE Teams SET Bronze_Medals=Bronze_Medals+1, Timestamp=? WHERE Name=?", (timestamp, team_name))
         return "Successfully incremented."
 
     @synchronized_check(Global.medal_lock)
@@ -97,10 +100,10 @@ class DatabaseManager:
         Arguments:
         team_name -- String for one of the Olympic teams.
         """
-        print self.cur
         with self.conn:
-            self.cur.execute("SELECT * FROM Teams WHERE Name=?", (team_name,))
-            row = self.cur.fetchone()
+            cur = self.conn.cursor()
+            cur.execute("SELECT * FROM Teams WHERE Name=?", (team_name,))
+            row = cur.fetchone()
         return "Team %s has:\n%d gold medals\n%d silver medals\n%d bronze medals\nas of %s\n"%(team_name, row[1], row[2], row[3], row[4])
 
     @synchronized(Global.score_lock)
@@ -115,11 +118,12 @@ class DatabaseManager:
         timestamp -- Time of the update.
         """
         with self.conn:
-            self.cur.execute("SELECT * FROM OlympicEvents WHERE Type=?", (event_type,))
-            data = self.cur.fetchone()
+            cur = self.conn.cursor()
+            cur.execute("SELECT * FROM OlympicEvents WHERE Type=?", (event_type,))
+            data = cur.fetchone()
             if (data is None):
                 self.insert_olympic_event_into_db(event_type)
-            self.cur.execute("UPDATE OlympicEvents SET Score=?, Timestamp=? WHERE Type=?", (score, timestamp, event_type))
+            cur.execute("UPDATE OlympicEvents SET Score=?, Timestamp=? WHERE Type=?", (score, timestamp, event_type))
         return "Score successfully updated."
 
     @synchronized_check(Global.score_lock)
@@ -132,8 +136,9 @@ class DatabaseManager:
         event_type -- String for one of the Olympic events.
         """
         with self.conn:
-            self.cur.execute("SELECT * FROM OlympicEvents WHERE Type=?", (event_type,))
-            row = self.cur.fetchone()
+            cur = self.conn.cursor()
+            cur.execute("SELECT * FROM OlympicEvents WHERE Type=?", (event_type,))
+            row = cur.fetchone()
         score = row[1]
         timestamp = row[2]
         return score + " ["+timestamp+"]\n"

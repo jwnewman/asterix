@@ -35,7 +35,7 @@ class DBServerFunctions(ServerFunctions):
         """
         return self.db_mgr.set_score(event_type, score, timestamp)
 
-    def get_score(self, event_type, client_id, vector_clock_str):
+    def get_score(self, event_type, client_id):
         """Returns synced vector clock and current score for a given event via RPC to the DB Manager.
 
         Always called by ScoreKeeper.
@@ -47,9 +47,9 @@ class DBServerFunctions(ServerFunctions):
         client_id -- Unique string ID of the initial requesting client (used for raffle).
         vector_clock_str -- String representation of the vector clock of the frontend server.
         """
-        synched_clock_str = self.server.sync_with_vector_clock(vector_clock_str)
-        self.db_mgr.check_raffle(client_id, synched_clock_str)
-        return synched_clock_str, self.db_mgr.get_score(event_type)
+#        synched_clock_str = self.server.sync_with_vector_clock(vector_clock_str)
+#        self.db_mgr.check_raffle(client_id, synched_clock_str)
+        return self.db_mgr.get_score(event_type)
 
     def increment_medal_tally(self, team_name, medal_type, timestamp):
         """Increments the medal tally for a given team via RPC to the DB Manager.
@@ -63,7 +63,7 @@ class DBServerFunctions(ServerFunctions):
         """
         return self.db_mgr.increment_medal_tally(team_name, medal_type, timestamp)
 
-    def get_medal_tally(self, team_name, client_id, vector_clock_str):
+    def get_medal_tally(self, team_name, client_id):
         """Returns synced vector clock and current medal tally for a given team via RPC to the DB Manager.
 
         Always called by ScoreKeeper.
@@ -75,9 +75,9 @@ class DBServerFunctions(ServerFunctions):
         client_id -- Unique string ID of the initial requesting client (used for raffle).
         vector_clock_str -- String representation of the vector clock of the frontend server.
         """
-        synched_clock_str = self.server.sync_with_vector_clock(vector_clock_str)
-        self.db_mgr.check_raffle(client_id, synched_clock_str)
-        return synched_clock_str, self.db_mgr.get_medal_tally(team_name)
+#        synched_clock_str = self.server.sync_with_vector_clock(vector_clock_str)
+#        self.db_mgr.check_raffle(client_id, synched_clock_str)
+        return self.db_mgr.get_medal_tally(team_name)
     
 class DatabaseRPCHandler(SimpleXMLRPCRequestHandler):
     rpc_paths = ('/RPC2',)
@@ -92,9 +92,9 @@ def main(ip, port=8000, uid=0, frontends=[('localhost', 8002), ('localhost', 800
     server = AsyncXMLRPCServer(uid, DatabaseRPCHandler, hosts)
     server.register_introspection_functions()
     server.register_instance(DBServerFunctions(server))
-    t = threading.Timer(10, server.check_time_server)
-    t.daemon = True
-    t.start()
+#    t = threading.Timer(10, server.check_time_server)
+#    t.daemon = True
+#    t.start()
     server.serve_forever()
 
 if __name__ == "__main__":

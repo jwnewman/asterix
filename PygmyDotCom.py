@@ -48,7 +48,7 @@ class PygmyServerFunctions:
         servers = []
         for ip, port in self.frontends:
             try:
-                s = xmlrpclib.ServerProxy("http://%s:%d"%(ip, port))
+                s = (ip, port)
                 servers.append(s)
             except socket.error:
                 pass
@@ -75,9 +75,11 @@ class PygmyServerFunctions:
         client_id -- Unique string ID of the requesting client (used for raffle).
         """
         self.increment_counter()
-        server = self.load_balance()
+        host = self.load_balance()
+        server = xmlrpclib.ServerProxy("http://%s:%d"%host)
         if type(server) is not types.NoneType:
-            return server.get_medal_tally(team_name, client_id)
+            tally = server.get_medal_tally(team_name, client_id)
+            return tally
         else:
             return "Error 1928391 -- Sorry I'm not sorry"
 
@@ -93,7 +95,8 @@ class PygmyServerFunctions:
         medal_type -- String for the type of medal to increment.
         password -- Unique password only known by Cacofonix (hopefully).
         """
-        server = self.load_balance()
+        host = self.load_balance()
+        server = xmlrpclib.ServerProxy("http://%s:%d"%host)
         if type(server) is not types.NoneType:
             return server.increment_medal_tally(team_name, medal_type, password)
         else:
@@ -111,7 +114,8 @@ class PygmyServerFunctions:
         client_id -- Unique string ID of the requesting client (used for raffle).
         """
         self.increment_counter()
-        server = self.load_balance()
+        host = self.load_balance()
+        server = xmlrpclib.ServerProxy("http://%s:%d"%host)
         if type(server) is not types.NoneType:
             return server.get_score(event_type, client_id)
         else:
@@ -129,7 +133,8 @@ class PygmyServerFunctions:
         score -- String for the updated score.
         password -- Unique password only known by Cacofonix (hopefully).
         """
-        server = self.load_balance()
+        host = self.load_balance()
+        server = xmlrpclib.ServerProxy("http://%s:%d"%host)
         if type(server) is not types.NoneType:
             return server.set_score(event_type, score, password)
         else:

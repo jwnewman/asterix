@@ -63,27 +63,6 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer):
 
         SimpleXMLRPCServer.__init__(self, self.host, request_handler)
 
-    def vector_clock_string(self):
-        return vector_clock_to_string(self.vector_clock)
-
-    def increment_event_count(self):
-        """Locks on vector clock and increments local event count by 1."""
-        with self.clock_lock:
-            self.vector_clock[self.uid] += 1
-
-    def sync_with_vector_clock(self, vector_clock_str):
-        """Syncs vector clock with given vector clock.
-
-        Synced vector clock is the max of each index in each.
-
-        Arguments:
-        vector_clock_str -- String representation of vector clock to sync with.
-        """
-        vector_clock = vector_clock_from_string(vector_clock_str)
-        with self.clock_lock:
-            self.vector_clock = sync_vector_clocks(vector_clock, self.vector_clock)
-            synced_clock_str = vector_clock_to_string(self.vector_clock)
-        return synced_clock_str
 
     def get_offset(self):
         """Returns current time offset: fraction of secs (float)."""
