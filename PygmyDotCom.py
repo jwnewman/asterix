@@ -48,7 +48,9 @@ class PygmyServerFunctions:
         servers = []
         for ip, port in self.frontends:
             try:
-                s = (ip, port)
+                host = (ip, port)
+                s = xmlrpclib.ServerProxy("http://%s:%d"%host)
+                s.get_id()
                 servers.append(s)
             except socket.error:
                 pass
@@ -75,13 +77,12 @@ class PygmyServerFunctions:
         client_id -- Unique string ID of the requesting client (used for raffle).
         """
         self.increment_counter()
-        host = self.load_balance()
-        server = xmlrpclib.ServerProxy("http://%s:%d"%host)
+        server = self.load_balance()
         if type(server) is not types.NoneType:
             tally = server.get_medal_tally(team_name, client_id)
             return tally
         else:
-            return "Error 1928391 -- Sorry I'm not sorry"
+            return "Error 1928391 -- No active frontend servers. Please try again later."
 
     def increment_medal_tally(self, team_name, medal_type, password):
         """Increments the medal tally for a given team via RPC to one of the frontend servers.
@@ -95,12 +96,11 @@ class PygmyServerFunctions:
         medal_type -- String for the type of medal to increment.
         password -- Unique password only known by Cacofonix (hopefully).
         """
-        host = self.load_balance()
-        server = xmlrpclib.ServerProxy("http://%s:%d"%host)
+        server = self.load_balance()
         if type(server) is not types.NoneType:
             return server.increment_medal_tally(team_name, medal_type, password)
         else:
-            return "Error 1928391 -- Sorry I'm not sorry"
+            return "Error 1928391 -- No active frontend servers. Please try again later."
 
     def get_score(self, event_type, client_id):
         """Returns the current score for a given event via RPC to one of the frontend servers.
@@ -114,12 +114,11 @@ class PygmyServerFunctions:
         client_id -- Unique string ID of the requesting client (used for raffle).
         """
         self.increment_counter()
-        host = self.load_balance()
-        server = xmlrpclib.ServerProxy("http://%s:%d"%host)
+        server = self.load_balance()
         if type(server) is not types.NoneType:
             return server.get_score(event_type, client_id)
         else:
-            return "Error 1928391 -- Sorry I'm not sorry"
+            return "Error 1928391 -- No active frontend servers. Please try again later."
 
     def set_score(self, event_type, score, password):
         """Sets the score for a given event via RPC to one of the frontend servers.
@@ -133,12 +132,11 @@ class PygmyServerFunctions:
         score -- String for the updated score.
         password -- Unique password only known by Cacofonix (hopefully).
         """
-        host = self.load_balance()
-        server = xmlrpclib.ServerProxy("http://%s:%d"%host)
+        server = self.load_balance()
         if type(server) is not types.NoneType:
             return server.set_score(event_type, score, password)
         else:
-            return "Error 1928391 -- Sorry I'm not sorry"
+            return "Error 1928391 -- No active frontend servers. Please try again later."
 
 class PygmyServer(SocketServer.ThreadingMixIn, SimpleXMLRPCServer): pass
 

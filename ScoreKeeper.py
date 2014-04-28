@@ -43,6 +43,7 @@ class ScoreKeeper:
         if team_name.lower() not in [t.lower() for t in TEAMS]:
             return "Error 8483 -- unrecognized team name:\n\t%s"%team_name
         if self.cache[team_name.lower()] == "":
+            print "Caching a new tally for " + team_name+"."
             tally = db_server.get_medal_tally(team_name.lower(), client_id)
             self.cache[team_name.lower()] = tally
             return tally
@@ -63,6 +64,7 @@ class ScoreKeeper:
         if medal_type.lower() not in [m.lower() for m in MEDALS]:
             return "Error 15010 -- unrecognized medal metal:\n\t%s"%medal_type
         if invalidate_cache:
+            print "Received an update from Cacofonix. Invalidating the tally for " + team_name+"."
             self.cache[team_name.lower()] = ""
         return db_server.increment_medal_tally(team_name.lower(), medal_type, timestamp)
 
@@ -81,6 +83,7 @@ class ScoreKeeper:
             return "Error 28734 -- unrecognized event type:\n\t%s"%event_type
 
         if self.cache[event_type.lower()] == "":
+            print "Caching a new score for " + event_type+"."
             score = db_server.get_score(event_type.lower(), client_id)
             self.cache[event_type.lower()] = score
             return score
@@ -102,6 +105,7 @@ class ScoreKeeper:
             return "Error 5 -- unrecognized event type:\n\t%s"%event_type
         if invalidate_cache:
             self.cache[event_type.lower()] = ""
+            print "Received an update from Cacofonix. Invalidating the score for " + event_type+"."
         return db_server.set_score(event_type.lower(), score, timestamp)
 
     def update_cache(self):
