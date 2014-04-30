@@ -63,7 +63,7 @@ class ScoreKeeper:
         db_server = xmlrpclib.ServerProxy("http://%s:%d"%self.db)
         if medal_type.lower() not in [m.lower() for m in MEDALS]:
             return "Error 15010 -- unrecognized medal metal:\n\t%s"%medal_type
-        if invalidate_cache:
+        if invalidate_cache and self.cache[team_name.lower()] != "":
             print "Received an update from Cacofonix. Invalidating the tally for " + team_name+"."
             self.cache[team_name.lower()] = ""
         return db_server.increment_medal_tally(team_name.lower(), medal_type, timestamp)
@@ -103,7 +103,7 @@ class ScoreKeeper:
         db_server = xmlrpclib.ServerProxy("http://%s:%d"%self.db)
         if event_type.lower() not in [e.lower() for e in EVENTS]:
             return "Error 5 -- unrecognized event type:\n\t%s"%event_type
-        if invalidate_cache:
+        if invalidate_cache and self.cache[event_type.lower()] != "":
             self.cache[event_type.lower()] = ""
             print "Received an update from Cacofonix. Invalidating the score for " + event_type+"."
         return db_server.set_score(event_type.lower(), score, timestamp)
@@ -115,11 +115,11 @@ class ScoreKeeper:
             if name.lower() in [t.lower() for t in TEAMS]:
                 if not value == "" and not db_server.get_medal_tally(name, "") == value:
                     print name + "'s tally was out of date and has been invalidated."
-                    self.cache[name] = ""
+                    self.cache[name.lower()] = ""
             else:
                 if not value == "" and not db_server.get_score(name, "") == value:
                     print name + "'s score was out of date and has been invalidated."
-                    self.cache[name] = ""
+                    self.cache[name.lower()] = ""
         t = Timer(10, self.update_cache)
         t.daemon = True
         t.start()
