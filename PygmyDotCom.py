@@ -34,11 +34,15 @@ class PygmyServerFunctions:
     def __init__(self, frontends):
         self.frontends = frontends
         self.event_count = 0 # strictly for testing
+        self.avg_latency = 0
 
     @synchronized(COUNTER_LOCK)
     def increment_counter(self):
         """Strictly for testing purposes."""
         self.event_count += 1
+       # if self.event_count == 50:
+            #print "LATENCY IS:"
+            #print self.avg_latency/50.0
 
     def get_active_servers(self):
         """Returns a list of connections to available frontend servers.
@@ -79,7 +83,10 @@ class PygmyServerFunctions:
         self.increment_counter()
         server = self.load_balance()
         if type(server) is not types.NoneType:
+            start_time = time.time()
             tally = server.get_medal_tally(team_name, client_id)
+            end_time = time.time()
+            self.avg_latency += end_time - start_time
             return tally
         else:
             return "Error 1928391 -- No active frontend servers. Please try again later."
@@ -98,7 +105,11 @@ class PygmyServerFunctions:
         """
         server = self.load_balance()
         if type(server) is not types.NoneType:
-            return server.increment_medal_tally(team_name, medal_type, password)
+            start_time = time.time()
+            response = server.increment_medal_tally(team_name, medal_type, password)
+            end_time = time.time()
+            self.avg_latency += end_time - start_time
+            return response
         else:
             return "Error 1928391 -- No active frontend servers. Please try again later."
 
@@ -116,7 +127,11 @@ class PygmyServerFunctions:
         self.increment_counter()
         server = self.load_balance()
         if type(server) is not types.NoneType:
-            return server.get_score(event_type, client_id)
+            start_time = time.time()
+            score = server.get_score(event_type, client_id)
+            end_time = time.time()
+            self.avg_latency += end_time - start_time
+            return score
         else:
             return "Error 1928391 -- No active frontend servers. Please try again later."
 
@@ -134,7 +149,11 @@ class PygmyServerFunctions:
         """
         server = self.load_balance()
         if type(server) is not types.NoneType:
-            return server.set_score(event_type, score, password)
+            start_time = time.time()
+            response = server.set_score(event_type, score, password)
+            end_time = time.time()
+            self.avg_latency += end_time - start_time
+            return response
         else:
             return "Error 1928391 -- No active frontend servers. Please try again later."
 

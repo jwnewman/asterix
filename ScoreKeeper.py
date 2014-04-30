@@ -109,6 +109,9 @@ class ScoreKeeper:
         return db_server.set_score(event_type.lower(), score, timestamp)
 
     def update_cache(self):
+        """Specifically for pull-based cache consistency. This function polls the database server to
+        determine if there have been any updates to the cache since the last time we polled.
+        """
         print "Updating the cache"
         db_server = xmlrpclib.ServerProxy("http://%s:%d"%self.db)
         for name,value in self.cache.iteritems():
